@@ -1,9 +1,9 @@
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import type { NoteInfo } from "./SheetMusic";
 
 interface PianoProps {
   highlightedNotes: NoteInfo[];
-  onKeyPress?: (midiNumber: number) => void;
+  pressedKeys?: Set<number>;
 }
 
 // Piano range: A0 (21) to C8 (108) = 88 keys
@@ -39,7 +39,10 @@ const getNoteName = (midi: number): string => {
   return `${NOTE_NAMES[note]}${octave}`;
 };
 
-export default function Piano({ highlightedNotes, onKeyPress }: PianoProps) {
+export default function Piano({
+  highlightedNotes,
+  pressedKeys = new Set(),
+}: PianoProps) {
   // Create array of all 88 keys
   const keys = useMemo(() => {
     const keyArray = [];
@@ -62,12 +65,36 @@ export default function Piano({ highlightedNotes, onKeyPress }: PianoProps) {
     return map;
   }, [highlightedNotes]);
 
-  const handleKeyClick = useCallback(
-    (midi: number) => {
-      onKeyPress?.(midi);
-    },
-    [onKeyPress]
-  );
+  // Get key styling based on highlight and pressed state
+  const getKeyStyle = (midi: number, isBlack: boolean) => {
+    const highlight = highlightMap.get(midi);
+    const isPressed = pressedKeys.has(midi);
+    const isCorrectPress = highlight && isPressed;
+
+    if (isBlack) {
+      if (isCorrectPress) {
+        return "bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.6)]";
+      } else if (highlight === "left") {
+        return "bg-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.6)]";
+      } else if (highlight === "right") {
+        return "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.6)]";
+      } else if (isPressed) {
+        return "bg-zinc-600";
+      }
+      return "bg-zinc-900 hover:bg-zinc-800";
+    } else {
+      if (isCorrectPress) {
+        return "bg-green-400 border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]";
+      } else if (highlight === "left") {
+        return "bg-teal-400 border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.5)]";
+      } else if (highlight === "right") {
+        return "bg-orange-400 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.5)]";
+      } else if (isPressed) {
+        return "bg-zinc-300 border-zinc-400";
+      }
+      return "bg-white hover:bg-zinc-100";
+    }
+  };
 
   // Separate white and black keys for rendering
   const whiteKeys = keys.filter((k) => !k.isBlack);
@@ -77,22 +104,17 @@ export default function Piano({ highlightedNotes, onKeyPress }: PianoProps) {
       <div className="relative flex" style={{ minWidth: "fit-content" }}>
         {/* White keys */}
         <div className="flex">
-          {whiteKeys.map((key, index) => {
+          {whiteKeys.map((key) => {
             const highlight = highlightMap.get(key.midi);
+            const isPressed = pressedKeys.has(key.midi);
+
             return (
-              <button
+              <div
                 key={key.midi}
-                onClick={() => handleKeyClick(key.midi)}
                 className={`
                   relative h-36 w-8 border border-zinc-300 rounded-b-md
-                  transition-all duration-75 active:scale-[0.98]
-                  ${
-                    highlight === "left"
-                      ? "bg-teal-400 border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.5)]"
-                      : highlight === "right"
-                      ? "bg-orange-400 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.5)]"
-                      : "bg-white hover:bg-zinc-100"
-                  }
+                  transition-all duration-75
+                  ${getKeyStyle(key.midi, false)}
                 `}
                 title={key.name}
               >
@@ -100,19 +122,19 @@ export default function Piano({ highlightedNotes, onKeyPress }: PianoProps) {
                 {key.name.startsWith("C") && !key.name.includes("#") && (
                   <span
                     className={`absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-medium
-                    ${highlight ? "text-white" : "text-zinc-400"}`}
+                    ${highlight || isPressed ? "text-white" : "text-zinc-400"}`}
                   >
                     {key.name}
                   </span>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
 
         {/* Black keys - positioned absolutely */}
         <div className="absolute top-0 left-0 flex pointer-events-none">
-          {whiteKeys.map((whiteKey, index) => {
+          {whiteKeys.map((whiteKey) => {
             // Check if there's a black key after this white key
             const blackMidi = whiteKey.midi + 1;
             if (blackMidi > LAST_NOTE || !isBlackKey(blackMidi)) {
@@ -122,22 +144,13 @@ export default function Piano({ highlightedNotes, onKeyPress }: PianoProps) {
             const blackKey = keys.find((k) => k.midi === blackMidi);
             if (!blackKey) return <div key={whiteKey.midi} className="w-8" />;
 
-            const highlight = highlightMap.get(blackKey.midi);
-
             return (
               <div key={whiteKey.midi} className="w-8 relative">
-                <button
-                  onClick={() => handleKeyClick(blackKey.midi)}
+                <div
                   className={`
-                    absolute -right-3 top-0 h-24 w-6 z-10 rounded-b-md pointer-events-auto
-                    transition-all duration-75 active:scale-[0.98]
-                    ${
-                      highlight === "left"
-                        ? "bg-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.6)]"
-                        : highlight === "right"
-                        ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.6)]"
-                        : "bg-zinc-900 hover:bg-zinc-800"
-                    }
+                    absolute -right-3 top-0 h-24 w-6 z-10 rounded-b-md
+                    transition-all duration-75
+                    ${getKeyStyle(blackKey.midi, true)}
                   `}
                   title={blackKey.name}
                 />
