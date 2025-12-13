@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import SheetMusic, { type NoteInfo } from "../components/SheetMusic";
 import Piano from "../components/Piano";
+import { audioEngine } from "../utils/audioEngine";
 
 // Computer keyboard to MIDI mapping
 // Extended range: C2 to G5
@@ -64,7 +65,35 @@ export default function PlayPage() {
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [waitMode, setWaitMode] = useState(true);
+  const [audioLoaded, setAudioLoaded] = useState(false);
   const hasAdvancedRef = useRef(false);
+
+  // Initialize audio engine on first user interaction
+  useEffect(() => {
+    const initAudio = async () => {
+      try {
+        await audioEngine.ensureStarted();
+        setAudioLoaded(true);
+      } catch (err) {
+        console.error("Failed to init audio:", err);
+      }
+    };
+
+    // Try to init on mount, but it may need user interaction
+    initAudio();
+
+    // Also init on first click (for browsers that require user gesture)
+    const handleClick = () => {
+      if (!audioLoaded) {
+        initAudio();
+      }
+    };
+    document.addEventListener("click", handleClick, { once: true });
+
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [audioLoaded]);
 
   useEffect(() => {
     const content = sessionStorage.getItem("musicxml-content");
@@ -105,9 +134,9 @@ export default function PlayPage() {
     [waitMode, currentNotes]
   );
 
-  // Keyboard event handlers
+  // Keyboard event handlers with audio
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
       if (e.repeat) return;
 
       const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
@@ -115,6 +144,10 @@ export default function PlayPage() {
 
       if (midiNumber !== undefined) {
         e.preventDefault();
+
+        // Play sound
+        audioEngine.playNote(midiNumber);
+
         setPressedKeys((prev) => {
           const newSet = new Set(prev);
           newSet.add(midiNumber);
@@ -129,6 +162,9 @@ export default function PlayPage() {
       const midiNumber = KEYBOARD_MAP[key];
 
       if (midiNumber !== undefined) {
+        // Stop sound
+        audioEngine.stopNote(midiNumber);
+
         setPressedKeys((prev) => {
           const newSet = new Set(prev);
           newSet.delete(midiNumber);
@@ -143,6 +179,7 @@ export default function PlayPage() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      audioEngine.stopAllNotes();
     };
   }, [checkAndAdvance]);
 
@@ -157,6 +194,7 @@ export default function PlayPage() {
   const handleReset = () => {
     (window as any).osmdControls?.reset();
     setPressedKeys(new Set());
+    audioEngine.stopAllNotes();
   };
 
   if (!xmlContent) {
@@ -193,6 +231,11 @@ export default function PlayPage() {
 
         {/* Controls */}
         <div className="flex items-center gap-4">
+          {/* Audio Status */}
+          {!audioLoaded && (
+            <span className="text-xs text-zinc-500">Loading audio...</span>
+          )}
+
           {/* Wait Mode Toggle */}
           <button
             onClick={() => setWaitMode(!waitMode)}
