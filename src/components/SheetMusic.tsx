@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { OpenSheetMusicDisplay as OSMD } from "opensheetmusicdisplay";
+import {
+  OpenSheetMusicDisplay as OSMD,
+  GraphicalNote,
+} from "opensheetmusicdisplay";
 
 // Note info extracted from OSMD
 export interface NoteInfo {
@@ -14,6 +17,13 @@ interface SheetMusicProps {
   onReady?: () => void;
 }
 
+// Colors for highlighting
+const COLORS = {
+  left: "#14b8a6", // Teal
+  right: "#f97316", // Orange
+  default: "#000000", // Black
+};
+
 export default function SheetMusic({
   xmlContent,
   onNotesChange,
@@ -21,38 +31,69 @@ export default function SheetMusic({
 }: SheetMusicProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const osmdRef = useRef<OSMD | null>(null);
+  const previousNotesRef = useRef<GraphicalNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Extract notes under cursor
-  const extractNotesUnderCursor = useCallback(() => {
+  // Reset colors of previously highlighted notes
+  const resetPreviousNoteColors = useCallback(() => {
+    previousNotesRef.current.forEach((gNote) => {
+      const sourceNote = gNote.sourceNote;
+      if (sourceNote) {
+        sourceNote.NoteheadColor = COLORS.default;
+        sourceNote.StemColorXml = COLORS.default;
+      }
+    });
+    previousNotesRef.current = [];
+  }, []);
+
+  // Color notes based on hand and extract note info
+  const highlightAndExtractNotes = useCallback(() => {
     if (!osmdRef.current?.cursor) return;
 
-    const cursor = osmdRef.current.cursor;
-    const notesUnderCursor = cursor.NotesUnderCursor();
+    // Reset previous note colors
+    resetPreviousNoteColors();
 
-    const notes: NoteInfo[] = notesUnderCursor.map((note) => {
-      // Staff 1 = right hand (treble), Staff 2 = left hand (bass)
-      // In OSMD, staffIndex is 0-based
+    const cursor = osmdRef.current.cursor;
+    const gNotesUnderCursor = cursor.GNotesUnderCursor();
+
+    const notes: NoteInfo[] = [];
+
+    gNotesUnderCursor.forEach((gNote) => {
+      console.log(gNote);
+      const sourceNote = gNote.sourceNote;
+      if (!sourceNote || sourceNote.isRest()) return;
+
+      // Determine hand based on staff
       const staffIndex =
-        note.ParentStaffEntry?.ParentStaff?.idInMusicSheet ?? 0;
+        sourceNote.ParentStaffEntry?.ParentStaff?.idInMusicSheet ?? 0;
       const hand: "left" | "right" = staffIndex === 0 ? "right" : "left";
 
-      // Get MIDI number (OSMD uses halfTone property)
-      const midiNumber = note.halfTone + 12; // Adjust for OSMD's convention
+      // Color the entire note (head + stem)
+      const color = hand === "left" ? COLORS.left : COLORS.right;
+      sourceNote.NoteheadColor = color;
+      sourceNote.StemColorXml = color;
 
-      // Get duration in beats
-      const duration = note.Length?.RealValue ?? 1;
+      // Store for later reset
+      previousNotesRef.current.push(gNote);
 
-      return {
-        midiNumber,
-        hand,
-        duration,
-      };
+      // Get MIDI number
+      const midiNumber = sourceNote.halfTone + 12;
+
+      // Get duration
+      const duration = sourceNote.Length?.RealValue ?? 1;
+
+      notes.push({ midiNumber, hand, duration });
     });
 
+    // Re-render to show color changes
+    osmdRef.current.render();
+
+    // Show cursor again after render
+    osmdRef.current.cursor.show();
+
     onNotesChange?.(notes);
-  }, [onNotesChange]);
+  }, [onNotesChange, resetPreviousNoteColors]);
 
   // Initialize OSMD
   useEffect(() => {
@@ -73,6 +114,7 @@ export default function SheetMusic({
           drawPartNames: false,
           drawPartAbbreviations: false,
           drawingParameters: "compact",
+          coloringEnabled: true,
         });
 
         osmdRef.current = osmd;
@@ -83,16 +125,16 @@ export default function SheetMusic({
         // Render
         osmd.render();
 
-        // Setup cursor
+        // Setup cursor with better visibility
         osmd.cursor.show();
         osmd.cursor.CursorOptions = {
           ...osmd.cursor.CursorOptions,
-          color: "#14b8a6", // Teal color
-          alpha: 0.5,
+          color: "#8b5cf6", // Purple for cursor
+          alpha: 0.4,
         };
 
-        // Extract initial notes
-        extractNotesUnderCursor();
+        // Initial highlight
+        highlightAndExtractNotes();
 
         setIsLoading(false);
         onReady?.();
@@ -107,29 +149,30 @@ export default function SheetMusic({
 
     return () => {
       osmdRef.current = null;
+      previousNotesRef.current = [];
     };
-  }, [xmlContent, extractNotesUnderCursor, onReady]);
+  }, [xmlContent, highlightAndExtractNotes, onReady]);
 
   // Navigation methods
   const next = useCallback(() => {
     if (!osmdRef.current?.cursor) return;
     osmdRef.current.cursor.next();
-    extractNotesUnderCursor();
-  }, [extractNotesUnderCursor]);
+    highlightAndExtractNotes();
+  }, [highlightAndExtractNotes]);
 
   const previous = useCallback(() => {
     if (!osmdRef.current?.cursor) return;
     osmdRef.current.cursor.previous();
-    extractNotesUnderCursor();
-  }, [extractNotesUnderCursor]);
+    highlightAndExtractNotes();
+  }, [highlightAndExtractNotes]);
 
   const reset = useCallback(() => {
     if (!osmdRef.current?.cursor) return;
     osmdRef.current.cursor.reset();
-    extractNotesUnderCursor();
-  }, [extractNotesUnderCursor]);
+    highlightAndExtractNotes();
+  }, [highlightAndExtractNotes]);
 
-  // Expose navigation methods via window for testing (will use proper state management later)
+  // Expose navigation methods via window
   useEffect(() => {
     (window as any).osmdControls = { next, previous, reset };
     return () => {
