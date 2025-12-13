@@ -4,58 +4,95 @@ import SheetMusic, { type NoteInfo } from "../components/SheetMusic";
 import Piano from "../components/Piano";
 import { audioEngine } from "../utils/audioEngine";
 
-// Computer keyboard to MIDI mapping
-// Extended range: C2 to G5
+// ============================================================
+// ERGONOMIC KEYBOARD TO PIANO MAPPING
+// ============================================================
+//
+// This layout mimics real piano hand positions:
+// - LEFT HAND (Q-U row): Bass notes C3-B3 (MIDI 48-59)
+// - RIGHT HAND (I-' row): Treble notes C4-B4 (MIDI 60-71)
+// - Black keys are on the NUMBER ROW, directly above their white keys
+//
+// Visual Layout:
+//
+//   LEFT HAND (C3-B3)                RIGHT HAND (C4-B4)
+//   ┌─────────────────────┐          ┌─────────────────────┐
+//   │ [2][3]   [5][6][7]  │          │ [9][0]   [-][=][⌫]  │  ← Black keys
+//   │ [Q][W][E][R][T][Y][U]│          │ [I][O][P][ [ ][ ] ][;][']│  ← White keys
+//   └─────────────────────┘          └─────────────────────┘
+//     C  D  E  F  G  A  B              C  D  E  F  G  A  B
+//
+// ============================================================
+
 const KEYBOARD_MAP: Record<string, number> = {
-  // Number row - C2 to B2 (MIDI 36-47) white keys
-  "1": 36, // C2
-  "2": 38, // D2
-  "3": 40, // E2
-  "4": 41, // F2
-  "5": 43, // G2
-  "6": 45, // A2
-  "7": 47, // B2
+  // ═══════════════════════════════════════════════════════════
+  // LEFT HAND - C3 to B3 (MIDI 48-59) - Bass/accompaniment
+  // ═══════════════════════════════════════════════════════════
 
-  // Lower row - C3 to B3 (MIDI 48-59)
-  z: 48, // C3
-  x: 50, // D3
-  c: 52, // E3
-  v: 53, // F3
-  b: 55, // G3
-  n: 57, // A3
-  m: 59, // B3
-  // Black keys C3 octave
-  s: 49, // C#3
-  d: 51, // D#3
-  g: 54, // F#3
-  h: 56, // G#3
-  j: 58, // A#3
+  // White keys (QWERTY row - left side)
+  q: 48, // C3
+  w: 50, // D3
+  e: 52, // E3
+  r: 53, // F3
+  t: 55, // G3
+  y: 57, // A3
+  u: 59, // B3
 
-  // QWERTY row - C4 to B4 (MIDI 60-71)
-  q: 60, // C4 (middle C)
-  w: 62, // D4
-  e: 64, // E4
-  r: 65, // F4
-  t: 67, // G4
-  y: 69, // A4
-  u: 71, // B4
-  // Black keys C4 octave (use number row)
-  "8": 61, // C#4
-  "9": 63, // D#4
-  "-": 66, // F#4
-  "=": 68, // G#4
-  Backspace: 70, // A#4
+  // Black keys (Number row - above white keys)
+  "2": 49, // C#3 (above Q-W)
+  "3": 51, // D#3 (above W-E)
+  "5": 54, // F#3 (above R-T)
+  "6": 56, // G#3 (above T-Y)
+  "7": 58, // A#3 (above Y-U)
 
-  // Upper range - C5 to G5 (MIDI 72-79)
-  i: 72, // C5
-  o: 74, // D5
-  p: 76, // E5
-  "[": 77, // F5
-  "]": 79, // G5
-  // Black keys C5 octave
-  "0": 73, // C#5
-  a: 75, // D#5
-  f: 78, // F#5
+  // ═══════════════════════════════════════════════════════════
+  // RIGHT HAND - C4 to B4 (MIDI 60-71) - Melody (includes Middle C)
+  // ═══════════════════════════════════════════════════════════
+
+  // White keys (right side of keyboard)
+  i: 60, // C4 (Middle C!)
+  o: 62, // D4
+  p: 64, // E4
+  "[": 65, // F4
+  "]": 67, // G4
+  ";": 69, // A4 (semicolon)
+  "'": 71, // B4 (apostrophe)
+
+  // Black keys (Number row - right side, above white keys)
+  "9": 61, // C#4 (above I-O)
+  "0": 63, // D#4 (above O-P)
+  "-": 66, // F#4 (above [-])
+  "=": 68, // G#4 (above ]-;)
+  Backspace: 70, // A#4 (above ;-')
+
+  // ═══════════════════════════════════════════════════════════
+  // EXTENDED RANGE - Lower octave (for advanced users)
+  // Using bottom row (Z-M) for C2-B2
+  // ═══════════════════════════════════════════════════════════
+
+  z: 36, // C2
+  x: 38, // D2
+  c: 40, // E2
+  v: 41, // F2
+  b: 43, // G2
+  n: 45, // A2
+  m: 47, // B2
+
+  // Black keys for C2 octave (A-S-D row)
+  s: 37, // C#2
+  d: 39, // D#2
+  g: 42, // F#2
+  h: 44, // G#2
+  j: 46, // A#2
+
+  // ═══════════════════════════════════════════════════════════
+  // EXTENDED RANGE - Higher octave (for advanced users)
+  // Using remaining keys for C5-E5
+  // ═══════════════════════════════════════════════════════════
+
+  "1": 72, // C5
+  "4": 74, // D5
+  "8": 76, // E5
 };
 
 export default function PlayPage() {
