@@ -1,5 +1,7 @@
 import { useState, useRef, type ChangeEvent, type DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
 
@@ -26,11 +28,10 @@ export default function HomePage() {
 
     try {
       const content = await file.text();
-      // Store in sessionStorage for PlayPage to access
       sessionStorage.setItem("musicxml-content", content);
       sessionStorage.setItem("musicxml-filename", file.name);
       navigate("/play");
-    } catch (err) {
+    } catch {
       setError("Failed to read file. Please try again.");
     }
   };
@@ -48,7 +49,6 @@ export default function HomePage() {
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-
     const file = e.dataTransfer.files[0];
     if (file) handleFile(file);
   };
@@ -63,7 +63,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-zinc-950">
+    <div className="dark min-h-screen flex flex-col bg-background">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -73,70 +73,55 @@ export default function HomePage() {
         className="hidden"
       />
 
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold mb-4 text-white">Keyvana</h1>
-        <p className="text-zinc-400 text-lg">
-          Learn piano with sheet music visualization
-        </p>
-      </div>
-
-      {/* Upload Zone */}
-      <div
-        className={`w-full max-w-2xl p-16 flex flex-col items-center justify-center cursor-pointer
-                   border-2 border-dashed rounded-2xl transition-all duration-200
-                   ${
-                     isDragging
-                       ? "border-white bg-zinc-800"
-                       : "border-zinc-700 bg-zinc-900/50 hover:border-zinc-500 hover:bg-zinc-900"
-                   }`}
-        onClick={handleClick}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <div
-          className={`w-16 h-16 mb-6 rounded-full flex items-center justify-center transition-colors
-                        ${isDragging ? "bg-zinc-700" : "bg-zinc-800"}`}
+      {/* Main content */}
+      <main className="flex-1 flex flex-col items-center justify-center px-6 py-16">
+        {/* Upload Card */}
+        <Card
+          className={` ${
+            isDragging
+              ? "border-primary bg-primary/5 scale-[1.02]"
+              : "border-border hover:border-muted-foreground/50 hover:bg-accent/50"
+          }`}
+          onClick={handleClick}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
-          <svg
-            className={`w-8 h-8 transition-colors ${
-              isDragging ? "text-white" : "text-zinc-400"
-            }`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-            />
-          </svg>
-        </div>
-        <h2 className="text-xl font-semibold mb-2 text-zinc-100">
-          Upload MusicXML File
-        </h2>
-        <p className="text-zinc-500 text-center">
-          {isDragging ? (
-            "Drop your file here"
-          ) : (
-            <>
-              Drag and drop your file here
-              <br />
-              <span className="text-sm">or click to browse</span>
-            </>
-          )}
+          <CardContent className="flex flex-col items-center py-12">
+            <h2 className="text-lg font-medium text-foreground mb-1">
+              {isDragging ? "Drop your file here" : "Upload MusicXML"}
+            </h2>
+
+            <p className="text-muted-foreground text-sm text-center mb-5">
+              {isDragging ? (
+                "Release to upload"
+              ) : (
+                <>Drag and drop or click to browse</>
+              )}
+            </p>
+
+            <Button variant="outline" size="sm" className="pointer-events-none">
+              Select File
+            </Button>
+
+            <p className="text-xs text-muted-foreground/70 mt-4">
+              .xml, .musicxml, .mxl
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Error message */}
+        {error && (
+          <p className="mt-4 text-destructive text-sm text-center">{error}</p>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="py-6 text-center">
+        <p className="text-xs text-muted-foreground/50">
+          Made for piano learners
         </p>
-      </div>
-
-      {/* Error message */}
-      {error && <p className="mt-4 text-red-400 text-sm">{error}</p>}
-
-      <p className="mt-8 text-zinc-600 text-sm">
-        Supported formats: MusicXML (.xml, .musicxml, .mxl)
-      </p>
+      </footer>
     </div>
   );
 }
