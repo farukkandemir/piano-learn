@@ -1,7 +1,26 @@
 @import "tailwindcss";
 
+@theme {
+  /* Hand distinction colors */
+  --color-hand-left: #14b8a6;
+  --color-hand-left-glow: rgba(20, 184, 166, 0.4);
+  --color-hand-right: #f97316;
+  --color-hand-right-glow: rgba(249, 115, 22, 0.4);
+
+  /* Piano colors */
+  --color-piano-white: #fafafa;
+  --color-piano-black: #1a1a1a;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
 }
