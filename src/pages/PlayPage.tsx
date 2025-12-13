@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import SheetMusic, { type NoteInfo } from "../components/SheetMusic";
+import Piano from "../components/Piano";
 
 export default function PlayPage() {
   const navigate = useNavigate();
@@ -23,7 +24,11 @@ export default function PlayPage() {
 
   const handleNotesChange = useCallback((notes: NoteInfo[]) => {
     setCurrentNotes(notes);
-    console.log("Current notes:", notes);
+  }, []);
+
+  const handleKeyPress = useCallback((midiNumber: number) => {
+    console.log("Key pressed:", midiNumber);
+    // Will be used for wait mode in Phase 5
   }, []);
 
   const handleNext = () => {
@@ -100,31 +105,13 @@ export default function PlayPage() {
       </header>
 
       {/* Sheet Music Area */}
-      <div className="flex-1 p-4 overflow-hidden">
+      <div className="flex-1 p-4 overflow-hidden min-h-0">
         <SheetMusic xmlContent={xmlContent} onNotesChange={handleNotesChange} />
       </div>
 
       {/* Piano Area */}
-      <div className="h-48 bg-zinc-900 border-t border-zinc-800 flex flex-col items-center justify-center">
-        <p className="text-zinc-500 mb-2">
-          88-key piano will render here (Phase 4)
-        </p>
-        {currentNotes.length > 0 && (
-          <div className="flex gap-2">
-            {currentNotes.map((note, i) => (
-              <span
-                key={i}
-                className={`px-2 py-1 rounded text-sm ${
-                  note.hand === "left"
-                    ? "bg-teal-600/20 text-teal-400"
-                    : "bg-orange-600/20 text-orange-400"
-                }`}
-              >
-                MIDI {note.midiNumber} ({note.hand})
-              </span>
-            ))}
-          </div>
-        )}
+      <div className="h-44 bg-zinc-900 border-t border-zinc-800">
+        <Piano highlightedNotes={currentNotes} onKeyPress={handleKeyPress} />
       </div>
     </div>
   );
