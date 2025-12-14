@@ -163,11 +163,11 @@ function HeroSection() {
   return (
     <section className="mb-8 text-center">
       <h1 className="mb-3 text-4xl font-semibold tracking-tight">
-        Learn piano, your way
+        Learn, play, share
       </h1>
       <p className="text-muted-foreground max-w-md mx-auto">
-        Discover a new way to master piano: personalized, enjoyable, and at your
-        rhythm.
+        A community-driven piano practice space. Discover sheets and start
+        playing.
       </p>
     </section>
   );
