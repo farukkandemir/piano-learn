@@ -18,7 +18,7 @@ export interface Song {
 
 export type NewSong = Omit<Song, "id" | "createdAt" | "updatedAt">;
 
-const STORAGE_KEY = "keyvana-songs";
+const STORAGE_KEY = "piano-learn-songs";
 
 /**
  * Generate a unique ID for a new song
