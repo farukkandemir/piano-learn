@@ -74,31 +74,18 @@ export default function HomePage() {
       />
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-16">
+      <main className="">
         {/* Upload Card */}
         <Card
-          className={` ${
-            isDragging
-              ? "border-primary bg-primary/5 scale-[1.02]"
-              : "border-border hover:border-muted-foreground/50 hover:bg-accent/50"
-          }`}
           onClick={handleClick}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <CardContent className="flex flex-col items-center py-12">
-            <h2 className="text-lg font-medium text-foreground mb-1">
-              {isDragging ? "Drop your file here" : "Upload MusicXML"}
-            </h2>
+          <CardContent className="">
+            <h2 className="">Upload MusicXML</h2>
 
-            <p className="text-muted-foreground text-sm text-center mb-5">
-              {isDragging ? (
-                "Release to upload"
-              ) : (
-                <>Drag and drop or click to browse</>
-              )}
-            </p>
+            <p className="">Drag and drop or click to browse</p>
 
             <Button variant="outline" size="sm" className="pointer-events-none">
               Select File
@@ -111,9 +98,7 @@ export default function HomePage() {
         </Card>
 
         {/* Error message */}
-        {error && (
-          <p className="mt-4 text-destructive text-sm text-center">{error}</p>
-        )}
+        {error && <p>{error}</p>}
       </main>
 
       {/* Footer */}
