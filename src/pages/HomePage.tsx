@@ -2,7 +2,7 @@ import { useState, useRef, type ChangeEvent, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/mode-toggle";
+import { Layout } from "@/components/Layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -132,32 +132,7 @@ interface UploadFormData {
 // Components
 // =============================================================================
 
-function Navigation({
-  searchQuery,
-  onSearchChange,
-}: {
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-}) {
-  return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-        <h1 className="text-lg font-bold">piano.learn</h1>
-        <div className="relative max-w-xs flex-1 mx-8">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            type="text"
-            placeholder="Search songs..."
-            className="h-9 w-full rounded-lg border-0 bg-muted/50 pl-9 pr-4 text-sm placeholder:text-muted-foreground/60 focus:bg-muted focus:outline-none"
-          />
-        </div>
-        <ModeToggle />
-      </div>
-    </header>
-  );
-}
+// Navigation is now handled by Layout component
 
 function HeroSection() {
   return (
@@ -208,7 +183,7 @@ function Divider() {
 function SongCard({ song }: { song: FeaturedSong }) {
   return (
     <Card className="group overflow-hidden border-0 bg-transparent shadow-none">
-      <div className="aspect-[4/3] overflow-hidden rounded-lg bg-muted">
+      <div className="aspect-4/3 overflow-hidden rounded-lg bg-muted">
         {song.image ? (
           <img
             src={song.image}
@@ -494,15 +469,14 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation
-        searchQuery={searchQuery}
-        onSearchChange={handleSearchChange}
-      />
-
-      <main
+    <Layout
+      showSearch
+      searchQuery={searchQuery}
+      onSearchChange={handleSearchChange}
+    >
+      <div
         className={cn(
-          "mx-auto max-w-6xl px-6 py-12 mt-[10%]",
+          "mx-auto max-w-6xl px-6 py-12",
           isSearching ? "mt-0" : "mt-[10%]"
         )}
       >
@@ -530,7 +504,7 @@ export default function HomePage() {
             onClearSearch={handleClearSearch}
           />
         )}
-      </main>
+      </div>
 
       <UploadModal
         isOpen={isModalOpen}
@@ -539,6 +513,6 @@ export default function HomePage() {
         onFormChange={setFormData}
         onSave={handleSaveAndPlay}
       />
-    </div>
+    </Layout>
   );
 }
