@@ -193,22 +193,26 @@ export default function HomePage() {
           </p>
         </section>
 
-        {/* Quick Start */}
-        <section className="mb-8 text-center">
-          <div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xml,.musicxml,.mxl"
-              onChange={handleInputChange}
-              className="hidden"
-            />
-            <Button onClick={handleClick} variant="outline">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Sheet Music
-            </Button>
-          </div>
-          {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+        {/* Upload Section */}
+        <section className="mb-8 flex justify-center">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xml,.musicxml,.mxl"
+            onChange={handleInputChange}
+            className="hidden"
+          />
+          <button
+            onClick={handleClick}
+            className="group flex items-center gap-3 rounded-lg bg-foreground px-5 py-3 text-background hover:bg-foreground/90"
+          >
+            <Upload className="h-4 w-4" />
+            <span className="text-sm font-medium">Upload your sheet</span>
+            <ArrowRight className="h-4 w-4 opacity-60" />
+          </button>
+          {error && (
+            <p className="mt-3 text-center text-sm text-destructive">{error}</p>
+          )}
         </section>
 
         {/* Or section with divider and text*/}
