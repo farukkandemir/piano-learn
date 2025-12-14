@@ -1,4 +1,4 @@
-import { useState, useRef, type ChangeEvent } from "react";
+import { useState, useRef, type ChangeEvent, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import {
 import { Upload, Clock, Music, ArrowRight, Search } from "lucide-react";
 import { toast } from "sonner";
 import { createSong, type Song } from "@/lib/storage";
+import { useQueryState } from "nuqs";
+import { cn } from "@/lib/utils";
 
 // =============================================================================
 // Constants
@@ -130,14 +132,22 @@ interface UploadFormData {
 // Components
 // =============================================================================
 
-function Navigation() {
+function Navigation({
+  searchQuery,
+  onSearchChange,
+}: {
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+}) {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         <h1 className="text-lg font-bold">piano.learn</h1>
         <div className="relative max-w-xs flex-1 mx-8">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-          <input
+          <Input
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
             type="text"
             placeholder="Search songs..."
             className="h-9 w-full rounded-lg border-0 bg-muted/50 pl-9 pr-4 text-sm placeholder:text-muted-foreground/60 focus:bg-muted focus:outline-none"
@@ -338,10 +348,59 @@ function UploadModal({
 // Main Component
 // =============================================================================
 
+function SearchView({
+  query,
+  songs,
+  onClearSearch,
+}: {
+  query: string;
+  songs: FeaturedSong[];
+  onClearSearch: () => void;
+}) {
+  if (songs.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <Search className="h-4 w-4 text-muted-foreground/50 mb-4" />
+        <p className="text-sm text-muted-foreground mb-1">No results for</p>
+        <p className="text-sm font-medium mb-4">"{query}"</p>
+        <Button variant="ghost" size="sm" onClick={onClearSearch}>
+          Clear search
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-semibold">
+          {songs.length} result{songs.length !== 1 ? "s" : ""} for "{query}"
+        </h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground"
+          onClick={onClearSearch}
+        >
+          Clear search
+        </Button>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {songs.map((song) => (
+          <SongCard key={song.id} song={song} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function HomePage() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useQueryState("q", {
+    defaultValue: "",
+  });
   const [formData, setFormData] = useState<UploadFormData>({
     title: "",
     composer: "",
@@ -349,6 +408,19 @@ export default function HomePage() {
     content: "",
     filename: "",
   });
+
+  const isSearching = searchQuery.trim().length > 0;
+
+  const filteredSongs = useMemo(() => {
+    if (!isSearching) return FEATURED_SONGS;
+
+    const searchQueryLower = searchQuery.toLowerCase();
+    return FEATURED_SONGS.filter(
+      (song) =>
+        song.title.toLowerCase().includes(searchQueryLower) ||
+        song.composer.toLowerCase().includes(searchQueryLower)
+    );
+  }, [searchQuery]);
 
   const validateFile = (file: File): boolean => {
     const extension = "." + file.name.split(".").pop()?.toLowerCase();
@@ -413,25 +485,51 @@ export default function HomePage() {
     e.target.value = "";
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      <Navigation
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+      />
 
-      <main className="mx-auto max-w-6xl px-6 py-12 mt-[10%]">
-        <HeroSection />
+      <main
+        className={cn(
+          "mx-auto max-w-6xl px-6 py-12 mt-[10%]",
+          isSearching ? "mt-0" : "mt-[10%]"
+        )}
+      >
+        {!isSearching ? (
+          <>
+            <HeroSection />
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".xml,.musicxml,.mxl"
-          onChange={handleInputChange}
-          className="hidden"
-        />
-        <UploadButton onClick={handleUploadClick} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xml,.musicxml,.mxl"
+              onChange={handleInputChange}
+              className="hidden"
+            />
+            <UploadButton onClick={handleUploadClick} />
 
-        <Divider />
+            <Divider />
 
-        <CommunitySection />
+            <CommunitySection />
+          </>
+        ) : (
+          <SearchView
+            query={searchQuery}
+            songs={filteredSongs}
+            onClearSearch={handleClearSearch}
+          />
+        )}
       </main>
 
       <UploadModal
