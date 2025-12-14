@@ -14,6 +14,7 @@ interface FeaturedSong {
   composer: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   duration: string;
+  image?: string;
 }
 
 const FEATURED_SONGS: FeaturedSong[] = [
@@ -23,6 +24,8 @@ const FEATURED_SONGS: FeaturedSong[] = [
     composer: "Beethoven",
     difficulty: "Intermediate",
     duration: "3:00",
+    image:
+      "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=400&h=300&fit=crop",
   },
   {
     id: "2",
@@ -30,6 +33,8 @@ const FEATURED_SONGS: FeaturedSong[] = [
     composer: "Beethoven",
     difficulty: "Advanced",
     duration: "5:30",
+    image:
+      "https://images.unsplash.com/photo-1552422535-c45813c61732?w=400&h=300&fit=crop",
   },
   {
     id: "3",
@@ -37,6 +42,8 @@ const FEATURED_SONGS: FeaturedSong[] = [
     composer: "Debussy",
     difficulty: "Advanced",
     duration: "4:45",
+    image:
+      "https://images.unsplash.com/photo-1514119412350-e174d90d280e?w=400&h=300&fit=crop",
   },
   {
     id: "4",
@@ -44,6 +51,8 @@ const FEATURED_SONGS: FeaturedSong[] = [
     composer: "Bach",
     difficulty: "Beginner",
     duration: "2:15",
+    image:
+      "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&h=300&fit=crop",
   },
   {
     id: "5",
@@ -51,6 +60,8 @@ const FEATURED_SONGS: FeaturedSong[] = [
     composer: "Satie",
     difficulty: "Beginner",
     duration: "3:20",
+    image:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
   },
   {
     id: "6",
@@ -58,14 +69,17 @@ const FEATURED_SONGS: FeaturedSong[] = [
     composer: "Chopin",
     difficulty: "Intermediate",
     duration: "4:30",
+    image:
+      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=300&fit=crop",
   },
-
   {
     id: "7",
     title: "Nocturne Op. 9 No. 2",
     composer: "Chopin",
     difficulty: "Intermediate",
     duration: "4:30",
+    image:
+      "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=300&fit=crop",
   },
   {
     id: "8",
@@ -73,6 +87,8 @@ const FEATURED_SONGS: FeaturedSong[] = [
     composer: "Chopin",
     difficulty: "Intermediate",
     duration: "4:30",
+    image:
+      "https://images.unsplash.com/photo-1571974599782-87624638275e?w=400&h=300&fit=crop",
   },
 ];
 
@@ -90,15 +106,32 @@ const Navigation = () => {
 
 const SongCard = ({ song }: { song: FeaturedSong }) => {
   return (
-    <Card className="p-4 rounded-lg">
-      <div className="space-y-2">
-        <h3 className="font-medium text-sm">{song.title}</h3>
-        <p className="text-xs text-muted-foreground">by {song.composer}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">
+    <Card className="group overflow-hidden border-0 bg-transparent shadow-none">
+      <div className="aspect-[4/3] overflow-hidden rounded-lg bg-muted">
+        {song.image ? (
+          <img
+            src={song.image}
+            alt={song.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <Music className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+        )}
+      </div>
+      <div className="pt-3 space-y-1">
+        <h3 className="font-medium text-sm leading-tight">{song.title}</h3>
+        <p className="text-xs text-muted-foreground">{song.composer}</p>
+        <div className="flex items-center gap-2 pt-1">
+          <span className="text-xs text-muted-foreground/70">
             {song.difficulty}
           </span>
-          <span className="text-xs text-muted-foreground">{song.duration}</span>
+          <span className="text-muted-foreground/30">·</span>
+          <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
+            <Clock className="h-3 w-3" />
+            {song.duration}
+          </span>
         </div>
       </div>
     </Card>
