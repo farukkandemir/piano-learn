@@ -64,11 +64,9 @@ const FEATURED_SONGS: FeaturedSong[] = [
 const Navigation = () => {
   return (
     <header className="border-b">
-      <div className=" flex  items-center justify-between px-6 py-4">
+      <div className="flex items-center justify-between px-6 py-4">
         <h1 className="font-bold">piano.learn</h1>
-        <div>
-          <Input placeholder="Search" />
-        </div>
+        <Input placeholder="Search" className="max-w-sm" />
         <ModeToggle />
       </div>
     </header>
