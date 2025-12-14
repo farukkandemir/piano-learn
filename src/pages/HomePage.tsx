@@ -94,29 +94,7 @@ const DifficultyBadge = ({
 };
 
 const SongCard = ({ song }: { song: FeaturedSong }) => {
-  return (
-    <Card className="group cursor-pointer transition-colors hover:bg-accent">
-      <CardContent className="p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-            <Music className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <DifficultyBadge difficulty={song.difficulty} />
-        </div>
-
-        <h3 className="mb-0.5 font-medium leading-tight">{song.title}</h3>
-        <p className="mb-3 text-sm text-muted-foreground">{song.composer}</p>
-
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Clock className="h-3.5 w-3.5" />
-            {song.duration}
-          </span>
-          <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-        </div>
-      </CardContent>
-    </Card>
-  );
+  return <div className="rounded-md border p-4">song card</div>;
 };
 
 export default function HomePage() {
@@ -207,32 +185,10 @@ export default function HomePage() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={`
-              mx-auto max-w-xl cursor-pointer border-2 border-dashed transition-all
-              ${
-                isDragging
-                  ? "border-primary bg-primary/5"
-                  : "hover:border-primary/50 hover:bg-accent"
-              }
+              mx-auto max-w-xl cursor-pointer border-2 border-dashed bg-muted
             `}
           >
             <CardContent className="flex flex-col items-center py-10">
-              <div
-                className={`
-                  mb-5 flex h-14 w-14 items-center justify-center rounded-xl transition-colors
-                  ${
-                    isDragging
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  }
-                `}
-              >
-                <Upload
-                  className={`h-6 w-6 ${
-                    isDragging ? "" : "text-muted-foreground"
-                  }`}
-                />
-              </div>
-
               <h2 className="mb-1 text-lg font-semibold">
                 {isDragging ? "Drop your file" : "Upload MusicXML"}
               </h2>
