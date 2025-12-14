@@ -11,7 +11,7 @@ export default function AboutPage() {
           </p>
           <h1 className="text-xl font-medium leading-relaxed mb-6">
             I started learning piano a few months ago. Like most beginners, I
-            wanted a simple way to practice with sheet music—something that
+            wanted a simple way to practice with sheet music. Something that
             would wait for me, not rush me.
           </h1>
           <p className="text-muted-foreground leading-relaxed">
@@ -55,7 +55,7 @@ export default function AboutPage() {
           </h2>
           <p className="leading-relaxed mb-4">
             Right now, this is a practice tool. But I'd love it to become
-            something more—a place where learners share sheets, tips, and
+            something more, a place where learners share sheets, tips, and
             progress with each other.
           </p>
           <p className="text-muted-foreground leading-relaxed">

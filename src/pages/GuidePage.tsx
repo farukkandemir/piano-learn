@@ -40,7 +40,7 @@ const platforms: PlatformProps[] = [
       "Open the app and go to the play page.",
       "Your keyboard should appear automatically.",
     ],
-    note: "Bluetooth MIDI isn't supported on Windows browsers—you'll need a cable.",
+    note: "Bluetooth MIDI isn't supported on Windows browsers. You'll need a cable.",
   },
   {
     name: "macOS",
@@ -60,7 +60,7 @@ const platforms: PlatformProps[] = [
       "Go to Settings → Bluetooth and connect.",
       "Open Safari and start playing.",
     ],
-    note: "No cable needed—iOS handles Bluetooth MIDI natively.",
+    note: "No cable needed. iOS handles Bluetooth MIDI natively.",
   },
 ];
 
