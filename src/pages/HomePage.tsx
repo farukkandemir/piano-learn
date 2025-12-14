@@ -164,9 +164,7 @@ export default function HomePage() {
 
   const handleFile = async (file: File) => {
     if (!validateFile(file)) {
-      toast.error(
-        "Invalid file type. Please upload .xml, .musicxml, or .mxl files."
-      );
+      toast.error(error);
       return;
     }
 
