@@ -2,7 +2,6 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
   type ReactNode,
 } from "react";
@@ -27,45 +26,16 @@ interface UploadSongData {
 }
 
 interface LibraryContextValue {
-  songs: Song[];
-  isLoading: boolean;
   error: string | null;
   uploadSong: (data: UploadSongData) => Promise<Song | null>;
-  fetchSongs: () => Promise<void>;
+  getSongById: (id: string) => Promise<Song | null>;
   getSongContent: (filePath: string) => Promise<string | null>;
 }
 
 const LibraryContext = createContext<LibraryContextValue | null>(null);
 
 export function LibraryProvider({ children }: { children: ReactNode }) {
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Fetch all songs from database
-  const fetchSongs = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    const { data, error: fetchError } = await supabase
-      .from("songs")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (fetchError) {
-      setError(fetchError.message);
-      setSongs([]);
-    } else {
-      setSongs(data || []);
-    }
-
-    setIsLoading(false);
-  }, []);
-
-  // Load songs on mount
-  useEffect(() => {
-    fetchSongs();
-  }, [fetchSongs]);
 
   // Upload a song (file to storage, metadata to database)
   const uploadSong = useCallback(
@@ -105,12 +75,25 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
         return null;
       }
 
-      // Refresh the list
-      await fetchSongs();
       return insertedSong;
     },
-    [fetchSongs]
+    []
   );
+
+  // Get a single song by ID
+  const getSongById = useCallback(async (id: string): Promise<Song | null> => {
+    const { data, error: fetchError } = await supabase
+      .from("songs")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) {
+      return null;
+    }
+
+    return data;
+  }, []);
 
   // Get MusicXML content from storage
   const getSongContent = useCallback(
@@ -132,11 +115,9 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   return (
     <LibraryContext.Provider
       value={{
-        songs,
-        isLoading,
         error,
         uploadSong,
-        fetchSongs,
+        getSongById,
         getSongContent,
       }}
     >
