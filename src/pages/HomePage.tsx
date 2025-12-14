@@ -3,8 +3,26 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Upload, Clock, Music, ArrowRight, Search } from "lucide-react";
 import { toast } from "sonner";
+import { createSong, type Song } from "@/lib/storage";
 
 const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
 
@@ -145,10 +163,26 @@ const SongCard = ({ song }: { song: FeaturedSong }) => {
   );
 };
 
+interface UploadFormData {
+  title: string;
+  composer: string;
+  difficulty: Song["difficulty"];
+  content: string;
+  filename: string;
+}
+
 export default function HomePage() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState<UploadFormData>({
+    title: "",
+    composer: "",
+    difficulty: "Beginner",
+    content: "",
+    filename: "",
+  });
 
   const validateFile = (file: File): boolean => {
     const extension = "." + file.name.split(".").pop()?.toLowerCase();
@@ -170,12 +204,43 @@ export default function HomePage() {
 
     try {
       const content = await file.text();
-      sessionStorage.setItem("musicxml-content", content);
-      sessionStorage.setItem("musicxml-filename", file.name);
-      navigate("/play");
+      const filenameWithoutExt = file.name.replace(
+        /\.(xml|musicxml|mxl)$/i,
+        ""
+      );
+
+      // Pre-fill form with filename as title
+      setFormData({
+        title: filenameWithoutExt,
+        composer: "",
+        difficulty: "Beginner",
+        content,
+        filename: file.name,
+      });
+      setIsModalOpen(true);
     } catch {
-      setError("Failed to read file. Please try again.");
+      toast.error("Failed to read file. Please try again.");
     }
+  };
+
+  const handleSaveAndPlay = () => {
+    if (!formData.title.trim()) {
+      toast.error("Please enter a title");
+      return;
+    }
+
+    const song = createSong({
+      title: formData.title.trim(),
+      composer: formData.composer.trim(),
+      difficulty: formData.difficulty,
+      duration: "",
+      content: formData.content,
+      filename: formData.filename,
+    });
+
+    setIsModalOpen(false);
+    toast.success("Song added to your library");
+    navigate(`/play/${song.id}`);
   };
 
   const handleClick = () => {
@@ -185,6 +250,8 @@ export default function HomePage() {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFile(file);
+    // Reset input so same file can be selected again
+    e.target.value = "";
   };
 
   return (
@@ -257,6 +324,79 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+
+      {/* Upload Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add to your library</DialogTitle>
+            <DialogDescription>
+              Enter details about your sheet music before practicing.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Title */}
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                placeholder="e.g., Für Elise"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
+              />
+            </div>
+
+            {/* Composer */}
+            <div className="space-y-2">
+              <Label htmlFor="composer">
+                Composer{" "}
+                <span className="text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                id="composer"
+                placeholder="e.g., Beethoven"
+                value={formData.composer}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, composer: e.target.value }))
+                }
+              />
+            </div>
+
+            {/* Difficulty */}
+            <div className="space-y-2">
+              <Label htmlFor="difficulty">Difficulty</Label>
+              <Select
+                value={formData.difficulty}
+                onValueChange={(value: Song["difficulty"]) =>
+                  setFormData((prev) => ({ ...prev, difficulty: value }))
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Beginner">Beginner</SelectItem>
+                  <SelectItem value="Intermediate">Intermediate</SelectItem>
+                  <SelectItem value="Advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveAndPlay}>
+              Save & Play
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import SheetMusic, { type NoteInfo } from "../components/SheetMusic";
 import Piano from "../components/Piano";
@@ -8,6 +8,7 @@ import { useMidi } from "../hooks/useMidi";
 import { ArrowLeft, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { getSongById, type Song } from "@/lib/storage";
 
 // ============================================================
 // ERGONOMIC KEYBOARD TO PIANO MAPPING
@@ -102,8 +103,8 @@ const KEYBOARD_MAP: Record<string, number> = {
 
 export default function PlayPage() {
   const navigate = useNavigate();
-  const [filename, setFilename] = useState<string | null>(null);
-  const [xmlContent, setXmlContent] = useState<string | null>(null);
+  const { songId } = useParams<{ songId: string }>();
+  const [song, setSong] = useState<Song | null>(null);
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
@@ -163,17 +164,19 @@ export default function PlayPage() {
   }, [audioLoaded]);
 
   useEffect(() => {
-    const content = sessionStorage.getItem("musicxml-content");
-    const name = sessionStorage.getItem("musicxml-filename");
-
-    if (!content) {
+    if (!songId) {
       navigate("/");
       return;
     }
 
-    setFilename(name);
-    setXmlContent(content);
-  }, [navigate]);
+    const loadedSong = getSongById(songId);
+    if (!loadedSong) {
+      navigate("/");
+      return;
+    }
+
+    setSong(loadedSong);
+  }, [songId, navigate]);
 
   const handleNotesChange = useCallback((notes: NoteInfo[]) => {
     setCurrentNotes(notes);
@@ -268,7 +271,7 @@ export default function PlayPage() {
     audioEngine.stopAllNotes();
   };
 
-  if (!xmlContent) {
+  if (!song) {
     return (
       <div className="h-screen flex items-center justify-center">
         <Spinner className="size-10" />
@@ -292,11 +295,9 @@ export default function PlayPage() {
 
           {/* Center - Song Title */}
           <div className="absolute left-1/2 -translate-x-1/2">
-            {filename && (
-              <p className="text-sm font-medium truncate max-w-[200px]">
-                {filename.replace(/\.(xml|musicxml|mxl)$/i, "")}
-              </p>
-            )}
+            <p className="text-sm font-medium truncate max-w-[200px]">
+              {song.title}
+            </p>
           </div>
 
           {/* Controls */}
@@ -357,7 +358,10 @@ export default function PlayPage() {
 
       {/* Sheet Music Area */}
       <div className="flex-1 p-4 overflow-hidden min-h-0">
-        <SheetMusic xmlContent={xmlContent} onNotesChange={handleNotesChange} />
+        <SheetMusic
+          xmlContent={song.content}
+          onNotesChange={handleNotesChange}
+        />
       </div>
 
       {/* Piano Area */}

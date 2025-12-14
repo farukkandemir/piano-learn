@@ -7,7 +7,7 @@ function App() {
     <div className="min-h-screen">
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/play" element={<PlayPage />} />
+        <Route path="/play/:songId" element={<PlayPage />} />
       </Routes>
     </div>
   );
