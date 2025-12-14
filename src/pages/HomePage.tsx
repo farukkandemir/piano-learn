@@ -63,7 +63,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="dark min-h-screen flex flex-col bg-background">
+    <div>
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -77,6 +77,7 @@ export default function HomePage() {
       <main className="">
         {/* Upload Card */}
         <Card
+          className="w-fit"
           onClick={handleClick}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -100,13 +101,6 @@ export default function HomePage() {
         {/* Error message */}
         {error && <p>{error}</p>}
       </main>
-
-      {/* Footer */}
-      <footer className="py-6 text-center">
-        <p className="text-xs text-muted-foreground/50">
-          Made for piano learners
-        </p>
-      </footer>
     </div>
   );
 }
