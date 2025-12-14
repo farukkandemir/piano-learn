@@ -8,7 +8,14 @@ import Piano from "../components/Piano";
 import MidiStatus from "../components/MidiStatus";
 import { audioEngine } from "../utils/audioEngine";
 import { useMidi } from "../hooks/useMidi";
-import { ArrowLeft, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  VolumeX,
+  Volume2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { getSongById, type Song } from "@/lib/storage";
@@ -111,6 +118,7 @@ export default function PlayPage() {
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState<ProgressInfo>({
     currentMeasure: 1,
     totalMeasures: 1,
@@ -282,6 +290,12 @@ export default function PlayPage() {
     audioEngine.stopAllNotes();
   };
 
+  const handleToggleMute = () => {
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    audioEngine.setMuted(newMuted);
+  };
+
   if (!song) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -330,6 +344,10 @@ export default function PlayPage() {
               onDisconnect={midi.disconnect}
               onRetry={midi.requestAccess}
             />
+
+            <Button onClick={handleToggleMute} variant="ghost" size="icon">
+              {isMuted ? <VolumeX /> : <Volume2 />}
+            </Button>
 
             {/* Reset button */}
             <Button

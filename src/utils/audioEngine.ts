@@ -28,6 +28,7 @@ class AudioEngine {
   private instrument: Tone.Sampler | null = null;
   private isStarted = false;
   private _loaded = false;
+  private _muted = false;
 
   constructor() {
     // Create reverb effect for concert hall feel
@@ -91,8 +92,20 @@ class AudioEngine {
     console.log("Audio engine started!");
   }
 
+  get muted(): boolean {
+    return this._muted;
+  }
+
+  setMuted(muted: boolean): void {
+    this._muted = muted;
+
+    if (muted) {
+      this.stopAllNotes();
+    }
+  }
+
   playNote(midiNumber: number, velocity: number = 0.7): void {
-    if (!this.instrument || !this._loaded) return;
+    if (!this.instrument || !this._loaded || this._muted) return;
 
     const noteName = midiToNoteName(midiNumber);
     this.instrument.triggerAttack(noteName, Tone.now(), velocity);
