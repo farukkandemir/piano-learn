@@ -2,7 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import SheetMusic, { type NoteInfo } from "../components/SheetMusic";
 import Piano from "../components/Piano";
+import MidiStatus from "../components/MidiStatus";
 import { audioEngine } from "../utils/audioEngine";
+import { useMidi } from "../hooks/useMidi";
 
 // ============================================================
 // ERGONOMIC KEYBOARD TO PIANO MAPPING
@@ -104,6 +106,32 @@ export default function PlayPage() {
   const [waitMode, setWaitMode] = useState(true);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const hasAdvancedRef = useRef(false);
+  const checkAndAdvanceRef = useRef<(keys: Set<number>) => void>(() => {});
+
+  // MIDI integration
+  const midi = useMidi({
+    onNoteOn: (midiNumber, _velocity) => {
+      // Play sound from MIDI input
+      audioEngine.playNote(midiNumber);
+
+      setPressedKeys((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(midiNumber);
+        // Use ref to access latest checkAndAdvance
+        checkAndAdvanceRef.current(newSet);
+        return newSet;
+      });
+    },
+    onNoteOff: (midiNumber) => {
+      audioEngine.stopNote(midiNumber);
+
+      setPressedKeys((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(midiNumber);
+        return newSet;
+      });
+    },
+  });
 
   // Initialize audio engine on first user interaction
   useEffect(() => {
@@ -170,6 +198,11 @@ export default function PlayPage() {
     },
     [waitMode, currentNotes]
   );
+
+  // Keep ref in sync for MIDI callbacks
+  useEffect(() => {
+    checkAndAdvanceRef.current = checkAndAdvance;
+  }, [checkAndAdvance]);
 
   // Keyboard event handlers with audio
   useEffect(() => {
@@ -268,6 +301,19 @@ export default function PlayPage() {
 
         {/* Controls */}
         <div className="flex items-center gap-4">
+          {/* MIDI Status */}
+          <MidiStatus
+            isSupported={midi.isSupported}
+            isConnected={midi.isConnected}
+            isRequesting={midi.isRequesting}
+            currentDevice={midi.currentDevice}
+            availableDevices={midi.availableDevices}
+            error={midi.error}
+            onDeviceSelect={midi.connectToDevice}
+            onDisconnect={midi.disconnect}
+            onRetry={midi.requestAccess}
+          />
+
           {/* Audio Status */}
           {!audioLoaded && (
             <span className="text-xs text-zinc-500">Loading audio...</span>
