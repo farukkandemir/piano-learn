@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Upload, Clock, Music, ArrowRight } from "lucide-react";
+import { Upload, Clock, Music, ArrowRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
@@ -94,10 +94,17 @@ const FEATURED_SONGS: FeaturedSong[] = [
 
 const Navigation = () => {
   return (
-    <header>
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         <h1 className="text-lg font-bold">piano.learn</h1>
-        <Input placeholder="Search" className="max-w-xs" />
+        <div className="relative max-w-xs flex-1 mx-8">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+          <input
+            type="text"
+            placeholder="Search songs..."
+            className="h-9 w-full rounded-lg border-0 bg-muted/50 pl-9 pr-4 text-sm placeholder:text-muted-foreground/60 focus:bg-muted focus:outline-none"
+          />
+        </div>
         <ModeToggle />
       </div>
     </header>
