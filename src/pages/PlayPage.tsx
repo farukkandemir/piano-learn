@@ -7,6 +7,7 @@ import { audioEngine } from "../utils/audioEngine";
 import { useMidi } from "../hooks/useMidi";
 import { ArrowLeft, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 // ============================================================
 // ERGONOMIC KEYBOARD TO PIANO MAPPING
@@ -269,8 +270,8 @@ export default function PlayPage() {
 
   if (!xmlContent) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Loading...</p>
+      <div className="h-screen flex items-center justify-center">
+        <Spinner className="size-10" />
       </div>
     );
   }
