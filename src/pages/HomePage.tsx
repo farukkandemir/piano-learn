@@ -65,7 +65,7 @@ const Navigation = () => {
   return (
     <header className="border-b">
       <div className="flex items-center justify-between px-6 py-4">
-        <h1 className="font-bold">piano.learn</h1>
+        <h1 className="text-lg font-bold">piano.learn</h1>
         <Input placeholder="Search" className="max-w-sm" />
         <ModeToggle />
       </div>
