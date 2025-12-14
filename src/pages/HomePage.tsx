@@ -232,7 +232,7 @@ function SongCard({ song }: { song: FeaturedSong }) {
 function CommunitySection() {
   return (
     <section className="mt-[5%]">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <h2 className="font-semibold">Community Favorites</h2>
         <Button variant="ghost" size="sm" className="text-muted-foreground">
           Explore more
