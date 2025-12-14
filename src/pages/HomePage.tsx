@@ -78,10 +78,10 @@ const FEATURED_SONGS: FeaturedSong[] = [
 
 const Navigation = () => {
   return (
-    <header className="border-b">
-      <div className="flex items-center justify-between px-6 py-4">
+    <header>
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
         <h1 className="text-lg font-bold">piano.learn</h1>
-        <Input placeholder="Search" className="max-w-sm" />
+        <Input placeholder="Search" className="max-w-xs" />
         <ModeToggle />
       </div>
     </header>
@@ -151,21 +151,17 @@ export default function HomePage() {
       <main className="mx-auto max-w-6xl px-6 py-12 mt-[10%]">
         {/* Community Header */}
         <section className="mb-8 text-center">
-          <h1 className="mb-3 text-2xl font-semibold tracking-tight">
-            Join the Piano Learning Community
+          <h1 className="mb-3 text-3xl font-semibold tracking-tight">
+            Learn piano, your way
           </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Connect with fellow musicians, share your progress, and discover how
-            piano learning strengthens communities worldwide
+          <p className="text-muted-foreground">
+            Learn piano with your own style, at your own pace.
           </p>
         </section>
 
         {/* Quick Start */}
         <section className="mb-8 text-center">
-          <div className="inline-flex items-center gap-4 bg-muted/50 rounded-lg p-4">
-            <span className="text-sm text-muted-foreground">
-              Ready to start your musical journey?
-            </span>
+          <div>
             <input
               ref={fileInputRef}
               type="file"
@@ -173,12 +169,29 @@ export default function HomePage() {
               onChange={handleInputChange}
               className="hidden"
             />
-            <Button onClick={handleClick} size="sm" variant="outline">
+            <Button onClick={handleClick} variant="outline">
               <Upload className="mr-2 h-4 w-4" />
               Upload Sheet Music
             </Button>
           </div>
           {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+        </section>
+
+        {/* Or section with divider and text*/}
+        <section className="mb-8 text-center">
+          <div className="relative">
+            <div
+              className="absolute inset-0 flex items-center"
+              aria-hidden="true"
+            >
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-background px-2 text-sm text-muted-foreground">
+                Or browse from community favorites
+              </span>
+            </div>
+          </div>
         </section>
 
         {/* Community Section */}
