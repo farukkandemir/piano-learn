@@ -2,8 +2,18 @@ import { useState, useRef, type ChangeEvent, type DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
+
+const Navigation = () => {
+  return (
+    <div className="flex items-center justify-between p-4 border-b">
+      <h1 className="text-base font-bold">piano.learn</h1>
+      <ModeToggle />
+    </div>
+  );
+};
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -63,18 +73,20 @@ export default function HomePage() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen">
+      <Navigation />
       {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".xml,.musicxml,.mxl"
-        onChange={handleInputChange}
-        className="hidden"
-      />
 
-      {/* Main content */}
-      <main className="">
+      <div className="max-w-7xl mx-auto">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".xml,.musicxml,.mxl"
+          onChange={handleInputChange}
+          className="hidden"
+        />
+
+        {/* Main content */}
         {/* Upload Card */}
         <Card
           className="w-fit"
@@ -100,7 +112,7 @@ export default function HomePage() {
 
         {/* Error message */}
         {error && <p>{error}</p>}
-      </main>
+      </div>
     </div>
   );
 }
