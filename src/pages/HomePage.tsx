@@ -1,10 +1,10 @@
 import { useState, useRef, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Upload, Clock, Music, ArrowRight, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
 
@@ -163,7 +163,12 @@ export default function HomePage() {
   };
 
   const handleFile = async (file: File) => {
-    if (!validateFile(file)) return;
+    if (!validateFile(file)) {
+      toast.error(
+        "Invalid file type. Please upload .xml, .musicxml, or .mxl files."
+      );
+      return;
+    }
 
     try {
       const content = await file.text();
@@ -217,9 +222,6 @@ export default function HomePage() {
             <span className="text-sm font-medium">Upload your sheet</span>
             <ArrowRight className="h-4 w-4 opacity-60" />
           </button>
-          {error && (
-            <p className="mt-3 text-center text-sm text-destructive">{error}</p>
-          )}
         </section>
 
         {/* Or section with divider and text*/}
