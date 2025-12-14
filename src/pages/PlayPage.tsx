@@ -103,7 +103,6 @@ export default function PlayPage() {
   const [xmlContent, setXmlContent] = useState<string | null>(null);
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
-  const [waitMode, setWaitMode] = useState(true);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const hasAdvancedRef = useRef(false);
   const checkAndAdvanceRef = useRef<(keys: Set<number>) => void>(() => {});
@@ -181,8 +180,7 @@ export default function PlayPage() {
   // Check if all required notes are currently pressed
   const checkAndAdvance = useCallback(
     (currentPressed: Set<number>) => {
-      if (!waitMode || currentNotes.length === 0 || hasAdvancedRef.current)
-        return;
+      if (currentNotes.length === 0 || hasAdvancedRef.current) return;
 
       const requiredNotes = new Set(currentNotes.map((n) => n.midiNumber));
       const allPressed = [...requiredNotes].every((note) =>
@@ -196,7 +194,7 @@ export default function PlayPage() {
         }, 100);
       }
     },
-    [waitMode, currentNotes]
+    [currentNotes]
   );
 
   // Keep ref in sync for MIDI callbacks
@@ -318,16 +316,6 @@ export default function PlayPage() {
           {!audioLoaded && (
             <span className="text-xs text-zinc-500">Loading audio...</span>
           )}
-
-          {/* Wait Mode Toggle */}
-          <button
-            onClick={() => setWaitMode(!waitMode)}
-            className={`px-3 py-1.5 text-sm rounded transition-colors ${
-              waitMode ? "bg-teal-600 text-white" : "bg-zinc-800 text-zinc-400"
-            }`}
-          >
-            Wait Mode {waitMode ? "ON" : "OFF"}
-          </button>
 
           {/* Navigation Controls */}
           <div className="flex items-center gap-2">
