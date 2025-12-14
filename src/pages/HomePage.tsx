@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Upload, Clock, Music, ArrowRight, Search } from "lucide-react";
+import { Upload, Clock, Music, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
@@ -68,9 +68,6 @@ const Navigation = () => {
         <h1 className="font-bold">piano.learn</h1>
         <div>
           <Input placeholder="Search" />
-          <Button variant="outline">
-            <Search className="h-4 w-4" />
-          </Button>
         </div>
         <ModeToggle />
       </div>
