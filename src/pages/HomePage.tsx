@@ -151,11 +151,12 @@ export default function HomePage() {
       <main className="mx-auto max-w-6xl px-6 py-12 mt-[10%]">
         {/* Community Header */}
         <section className="mb-8 text-center">
-          <h1 className="mb-3 text-3xl font-semibold tracking-tight">
+          <h1 className="mb-3 text-4xl font-semibold tracking-tight">
             Learn piano, your way
           </h1>
-          <p className="text-muted-foreground">
-            Learn piano with your own style, at your own pace.
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Discover a new way to master piano: personalized, enjoyable, and at
+            your rhythm.
           </p>
         </section>
 
@@ -178,22 +179,21 @@ export default function HomePage() {
         </section>
 
         {/* Or section with divider and text*/}
-        <section className="mb-8 text-center">
+        <section className="pb-12">
           <div className="relative">
             <div
               className="absolute inset-0 flex items-center"
               aria-hidden="true"
             >
-              <div className="w-full border-t border-border" />
+              <div className="w-full border-t border-border/60" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-background px-2 text-sm text-muted-foreground">
-                Or browse from community favorites
+              <span className="bg-background px-4 text-sm text-muted-foreground">
+                or explore community favorites
               </span>
             </div>
           </div>
         </section>
-
         {/* Community Section */}
         <section className="mt-[5%]">
           <div className="mb-5 flex items-center justify-between">
