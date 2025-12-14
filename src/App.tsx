@@ -4,7 +4,7 @@ import PlayPage from "./pages/PlayPage";
 
 function App() {
   return (
-    <div className="dark min-h-screen bg-background">
+    <div className="min-h-screen">
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/play" element={<PlayPage />} />
