@@ -59,6 +59,21 @@ const FEATURED_SONGS: FeaturedSong[] = [
     difficulty: "Intermediate",
     duration: "4:30",
   },
+
+  {
+    id: "7",
+    title: "Nocturne Op. 9 No. 2",
+    composer: "Chopin",
+    difficulty: "Intermediate",
+    duration: "4:30",
+  },
+  {
+    id: "8",
+    title: "Nocturne Op. 9 No. 2",
+    composer: "Chopin",
+    difficulty: "Intermediate",
+    duration: "4:30",
+  },
 ];
 
 const Navigation = () => {
@@ -75,7 +90,7 @@ const Navigation = () => {
 
 const SongCard = ({ song }: { song: FeaturedSong }) => {
   return (
-    <Card className="p-4">
+    <Card className="p-4 rounded-lg">
       <div className="space-y-2">
         <h3 className="font-medium text-sm">{song.title}</h3>
         <p className="text-xs text-muted-foreground">by {song.composer}</p>
@@ -167,13 +182,10 @@ export default function HomePage() {
         </section>
 
         {/* Community Section */}
-        <section>
+        <section className="mt-[5%]">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold">Community Favorites</h2>
-              <p className="text-sm text-muted-foreground">
-                Pieces shared and loved by our learning community
-              </p>
+              <h2 className="font-semibold">Community Favorites</h2>
             </div>
             <Button variant="ghost" size="sm" className="text-muted-foreground">
               Explore more
@@ -181,7 +193,7 @@ export default function HomePage() {
             </Button>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURED_SONGS.map((song) => (
               <SongCard key={song.id} song={song} />
             ))}
