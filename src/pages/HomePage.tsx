@@ -1,4 +1,4 @@
-import { useState, useRef, type ChangeEvent, type DragEvent } from "react";
+import { useState, useRef, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,34 +73,26 @@ const Navigation = () => {
   );
 };
 
-const DifficultyBadge = ({
-  difficulty,
-}: {
-  difficulty: FeaturedSong["difficulty"];
-}) => {
-  const variants = {
-    Beginner: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-    Intermediate: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-    Advanced: "bg-rose-500/15 text-rose-700 dark:text-rose-400",
-  };
-
-  return (
-    <span
-      className={`rounded-md px-2 py-0.5 text-[11px] font-medium ${variants[difficulty]}`}
-    >
-      {difficulty}
-    </span>
-  );
-};
-
 const SongCard = ({ song }: { song: FeaturedSong }) => {
-  return <div className="rounded-md border p-4">song card</div>;
+  return (
+    <Card className="p-4">
+      <div className="space-y-2">
+        <h3 className="font-medium text-sm">{song.title}</h3>
+        <p className="text-xs text-muted-foreground">by {song.composer}</p>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            {song.difficulty}
+          </span>
+          <span className="text-xs text-muted-foreground">{song.duration}</span>
+        </div>
+      </div>
+    </Card>
+  );
 };
 
 export default function HomePage() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const validateFile = (file: File): boolean => {
@@ -128,23 +120,6 @@ export default function HomePage() {
     }
   };
 
-  const handleDragOver = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  };
-
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -158,65 +133,50 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        {/* Hero */}
-        <section className="mb-12 text-center">
-          <h1 className="mb-2 text-3xl font-bold tracking-tight">
-            Learn piano, your way
+      <main className="mx-auto max-w-6xl px-6 py-12 mt-[10%]">
+        {/* Community Header */}
+        <section className="mb-8 text-center">
+          <h1 className="mb-3 text-2xl font-semibold tracking-tight">
+            Join the Piano Learning Community
           </h1>
-          <p className="text-muted-foreground">
-            Upload sheet music and practice with real-time guidance
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Connect with fellow musicians, share your progress, and discover how
+            piano learning strengthens communities worldwide
           </p>
         </section>
 
-        {/* Upload Section */}
-        <section className="mb-14">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xml,.musicxml,.mxl"
-            onChange={handleInputChange}
-            className="hidden"
-          />
-
-          <Card
-            onClick={handleClick}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={`
-              mx-auto max-w-xl cursor-pointer border-2 border-dashed bg-muted
-            `}
-          >
-            <CardContent className="flex flex-col items-center py-10">
-              <h2 className="mb-1 text-lg font-semibold">
-                {isDragging ? "Drop your file" : "Upload MusicXML"}
-              </h2>
-              <p className="mb-5 text-sm text-muted-foreground">
-                Drag and drop or click to browse
-              </p>
-
-              <Button variant="outline" className="pointer-events-none">
-                Select File
-              </Button>
-
-              <p className="mt-5 text-xs text-muted-foreground">
-                Supports .xml, .musicxml, .mxl
-              </p>
-            </CardContent>
-          </Card>
-
-          {error && (
-            <p className="mt-4 text-center text-sm text-destructive">{error}</p>
-          )}
+        {/* Quick Start */}
+        <section className="mb-8 text-center">
+          <div className="inline-flex items-center gap-4 bg-muted/50 rounded-lg p-4">
+            <span className="text-sm text-muted-foreground">
+              Ready to start your musical journey?
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xml,.musicxml,.mxl"
+              onChange={handleInputChange}
+              className="hidden"
+            />
+            <Button onClick={handleClick} size="sm" variant="outline">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Sheet Music
+            </Button>
+          </div>
+          {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
         </section>
 
-        {/* Featured Section */}
+        {/* Community Section */}
         <section>
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Featured Pieces</h2>
+            <div>
+              <h2 className="text-lg font-semibold">Community Favorites</h2>
+              <p className="text-sm text-muted-foreground">
+                Pieces shared and loved by our learning community
+              </p>
+            </div>
             <Button variant="ghost" size="sm" className="text-muted-foreground">
-              View all
+              Explore more
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
