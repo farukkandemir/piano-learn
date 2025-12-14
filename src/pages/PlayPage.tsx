@@ -1,6 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
-import SheetMusic, { type NoteInfo } from "../components/SheetMusic";
+import SheetMusic, {
+  type NoteInfo,
+  type ProgressInfo,
+} from "../components/SheetMusic";
 import Piano from "../components/Piano";
 import MidiStatus from "../components/MidiStatus";
 import { audioEngine } from "../utils/audioEngine";
@@ -108,6 +111,10 @@ export default function PlayPage() {
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
+  const [progress, setProgress] = useState<ProgressInfo>({
+    currentMeasure: 1,
+    totalMeasures: 1,
+  });
   const hasAdvancedRef = useRef(false);
   const checkAndAdvanceRef = useRef<(keys: Set<number>) => void>(() => {});
 
@@ -181,6 +188,10 @@ export default function PlayPage() {
   const handleNotesChange = useCallback((notes: NoteInfo[]) => {
     setCurrentNotes(notes);
     hasAdvancedRef.current = false;
+  }, []);
+
+  const handleProgressChange = useCallback((newProgress: ProgressInfo) => {
+    setProgress(newProgress);
   }, []);
 
   // Check if all required notes are currently pressed
@@ -281,28 +292,33 @@ export default function PlayPage() {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 ">
+      {/* Header - Option B style: Clean toolbar */}
+      <header className="sticky top-0 z-50 bg-background/80 border-b border-border/40">
         <div className="px-4 py-2 flex items-center justify-between">
+          {/* Left: Back button (isolated escape hatch) */}
           <Button
             onClick={() => navigate("/")}
-            variant="outline"
+            variant="ghost"
             size="icon"
-            title="Back"
+            className="shrink-0"
+            title="Back to library"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
 
-          {/* Center - Song Title */}
-          <div className="absolute left-1/2 -translate-x-1/2">
-            <p className="text-sm font-medium truncate max-w-[200px]">
-              {song.title}
-            </p>
+          {/* Center: Song info */}
+          <div className="flex-1 min-w-0 text-center px-4">
+            <p className="text-sm font-medium truncate">{song.title}</p>
+            {song.composer && (
+              <p className="text-xs text-muted-foreground truncate">
+                {song.composer}
+              </p>
+            )}
           </div>
 
-          {/* Controls */}
-          <div className="flex items-center gap-3">
-            {/* MIDI Status */}
+          {/* Right: Status indicators + Reset */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* MIDI Status - compact dot with dropdown */}
             <MidiStatus
               isSupported={midi.isSupported}
               isConnected={midi.isConnected}
@@ -315,43 +331,15 @@ export default function PlayPage() {
               onRetry={midi.requestAccess}
             />
 
-            {/* Audio Status */}
-            {!audioLoaded && (
-              <span className="text-xs text-muted-foreground">
-                Loading audio...
-              </span>
-            )}
-
-            {/* Navigation Controls */}
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={handleReset}
-                variant="outline"
-                size="icon"
-                title="Reset"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-              <div className="flex items-center gap-1">
-                <Button
-                  onClick={handlePrevious}
-                  variant="outline"
-                  size="icon"
-                  title="Previous"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="w-px h-4 bg-border/60" />
-                <Button
-                  onClick={handleNext}
-                  variant="outline"
-                  size="icon"
-                  title="Next"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            {/* Reset button */}
+            <Button
+              onClick={handleReset}
+              variant="ghost"
+              size="icon"
+              title="Reset to beginning"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
@@ -361,13 +349,57 @@ export default function PlayPage() {
         <SheetMusic
           xmlContent={song.content}
           onNotesChange={handleNotesChange}
+          onProgressChange={handleProgressChange}
         />
+      </div>
+
+      {/* Bottom Controls - Option A style: Controls near the piano */}
+      <div className="px-4 py-2 bg-muted/50 border-t border-border/40">
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            onClick={handlePrevious}
+            variant="outline"
+            size="sm"
+            className="gap-1"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Prev</span>
+          </Button>
+
+          {/* Measure indicator */}
+          <div className="flex items-center gap-2 min-w-[120px] justify-center">
+            <span className="text-sm text-muted-foreground">Measure</span>
+            <span className="text-sm font-medium tabular-nums">
+              {progress.currentMeasure}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              of {progress.totalMeasures}
+            </span>
+          </div>
+
+          <Button
+            onClick={handleNext}
+            variant="outline"
+            size="sm"
+            className="gap-1"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Piano Area */}
       <div className="h-44 bg-muted/30 border-t border-border/40">
         <Piano highlightedNotes={currentNotes} pressedKeys={pressedKeys} />
       </div>
+
+      {/* Audio loading indicator - subtle toast-like */}
+      {!audioLoaded && (
+        <div className="fixed bottom-48 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-background/90 border border-border rounded-full text-xs text-muted-foreground shadow-lg">
+          Loading audio...
+        </div>
+      )}
     </div>
   );
 }

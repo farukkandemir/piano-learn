@@ -11,9 +11,16 @@ export interface NoteInfo {
   duration: number;
 }
 
+// Progress info for cursor position
+export interface ProgressInfo {
+  currentMeasure: number;
+  totalMeasures: number;
+}
+
 interface SheetMusicProps {
   xmlContent: string;
   onNotesChange?: (notes: NoteInfo[]) => void;
+  onProgressChange?: (progress: ProgressInfo) => void;
   onReady?: () => void;
 }
 
@@ -27,6 +34,7 @@ const COLORS = {
 export default function SheetMusic({
   xmlContent,
   onNotesChange,
+  onProgressChange,
   onReady,
 }: SheetMusicProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,7 +68,6 @@ export default function SheetMusic({
     const notes: NoteInfo[] = [];
 
     gNotesUnderCursor.forEach((gNote) => {
-      console.log(gNote);
       const sourceNote = gNote.sourceNote;
       if (!sourceNote || sourceNote.isRest()) return;
 
@@ -92,8 +99,19 @@ export default function SheetMusic({
     // Show cursor again after render
     osmdRef.current.cursor.show();
 
+    // Report progress (measure info)
+    if (onProgressChange && osmdRef.current) {
+      const iterator = cursor.Iterator;
+      const currentMeasure = iterator?.CurrentMeasureIndex ?? 0;
+      const totalMeasures = osmdRef.current.Sheet?.SourceMeasures?.length ?? 0;
+      onProgressChange({
+        currentMeasure: currentMeasure + 1,
+        totalMeasures,
+      });
+    }
+
     onNotesChange?.(notes);
-  }, [onNotesChange, resetPreviousNoteColors]);
+  }, [onNotesChange, onProgressChange, resetPreviousNoteColors]);
 
   // Initialize OSMD
   useEffect(() => {
