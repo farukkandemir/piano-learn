@@ -1,5 +1,5 @@
-import type { Song, UploadSongData } from "@/contexts/LibraryContext";
 import { MUSICXML_BUCKET, supabase } from "@/lib/supabase";
+import type { Song, UploadSongData } from "@/types/song";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useSong = (id: string) => {

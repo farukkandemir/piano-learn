@@ -6,17 +6,14 @@ import "./index.css";
 import App from "./App.tsx";
 import { ThemeProvider } from "./components/theme-provider.tsx";
 import { Toaster } from "./components/ui/sonner.tsx";
-import { LibraryProvider } from "./contexts/LibraryContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <NuqsAdapter>
         <ThemeProvider>
-          <LibraryProvider>
-            <Toaster position="top-center" duration={3000} richColors />
-            <App />
-          </LibraryProvider>
+          <Toaster position="top-center" duration={3000} richColors />
+          <App />
         </ThemeProvider>
       </NuqsAdapter>
     </BrowserRouter>

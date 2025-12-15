@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { useQueryState } from "nuqs";
 import { cn } from "@/lib/utils";
 import { useUploadSong } from "@/queries/songs";
-import type { Song } from "@/contexts/LibraryContext";
+import type { Song } from "@/types/song";
 
 // =============================================================================
 // Constants
