@@ -76,7 +76,6 @@ class AudioEngine {
       baseUrl: "https://tonejs.github.io/audio/salamander/",
       onload: () => {
         this._loaded = true;
-        console.log("🎹 Piano samples loaded!");
       },
     }).connect(reverb);
   }
@@ -89,7 +88,6 @@ class AudioEngine {
       await Tone.start();
     }
     this.isStarted = true;
-    console.log("Audio engine started!");
   }
 
   get muted(): boolean {
