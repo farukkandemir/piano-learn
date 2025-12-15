@@ -1,5 +1,6 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
+import { generateCoverImage } from "../services/ai.js";
 
 const router = Router();
 
@@ -13,11 +14,12 @@ router.post("/generate", async (req: Request, res: Response) => {
       return;
     }
 
+    const imageData = await generateCoverImage(title, composer);
+
     // TODO: Call AI service
     res.json({
-      message: "Cover generation endpoint",
-      title,
-      composer,
+      success: true,
+      image: imageData,
     });
   } catch (error) {
     console.error("Error generating cover:", error);
