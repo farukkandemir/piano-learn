@@ -18,7 +18,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { getSongById, type Song } from "@/lib/storage";
+import { useSong, useSongContent } from "@/queries/songs";
+import { toast } from "sonner";
 
 // ============================================================
 // ERGONOMIC KEYBOARD TO PIANO MAPPING
@@ -114,7 +115,20 @@ const KEYBOARD_MAP: Record<string, number> = {
 export default function PlayPage() {
   const navigate = useNavigate();
   const { songId } = useParams<{ songId: string }>();
-  const [song, setSong] = useState<Song | null>(null);
+  // const [song, setSong] = useState<Song | null>(null);
+
+  const {
+    data: song,
+    isLoading: songLoading,
+    error: songError,
+  } = useSong(songId!);
+
+  const {
+    data: songContent,
+    isLoading: songContentLoading,
+    error: songContentError,
+  } = useSongContent(song?.file_path ?? "");
+
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
@@ -177,21 +191,6 @@ export default function PlayPage() {
       document.removeEventListener("click", handleClick);
     };
   }, [audioLoaded]);
-
-  useEffect(() => {
-    if (!songId) {
-      navigate("/");
-      return;
-    }
-
-    const loadedSong = getSongById(songId);
-    if (!loadedSong) {
-      navigate("/");
-      return;
-    }
-
-    setSong(loadedSong);
-  }, [songId, navigate]);
 
   const handleNotesChange = useCallback((notes: NoteInfo[]) => {
     setCurrentNotes(notes);
@@ -296,12 +295,24 @@ export default function PlayPage() {
     audioEngine.setMuted(newMuted);
   };
 
-  if (!song) {
+  if (songError || songContentError) {
+    toast("Something went wrong");
+    navigate("/");
+    return null;
+  }
+
+  if (songLoading || songContentLoading) {
     return (
       <div className="h-screen flex items-center justify-center">
         <Spinner className="size-10" />
       </div>
     );
+  }
+
+  if (!song || !songContent) {
+    toast("Song not found");
+    navigate("/");
+    return null;
   }
 
   return (
@@ -365,7 +376,7 @@ export default function PlayPage() {
       {/* Sheet Music Area */}
       <div className="flex-1 p-4 overflow-hidden min-h-0">
         <SheetMusic
-          xmlContent={song.content}
+          xmlContent={songContent}
           onNotesChange={handleNotesChange}
           onProgressChange={handleProgressChange}
         />

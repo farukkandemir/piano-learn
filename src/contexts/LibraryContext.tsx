@@ -18,7 +18,7 @@ export interface Song {
   created_at: string;
 }
 
-interface UploadSongData {
+export interface UploadSongData {
   title: string;
   composer?: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
@@ -126,10 +126,10 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useLibrary() {
+export const useLibrary = () => {
   const context = useContext(LibraryContext);
   if (!context) {
     throw new Error("useLibrary must be used within a LibraryProvider");
   }
   return context;
-}
+};

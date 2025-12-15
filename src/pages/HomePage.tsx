@@ -22,9 +22,10 @@ import {
 } from "@/components/ui/select";
 import { Upload, Clock, Music, ArrowRight, Search } from "lucide-react";
 import { toast } from "sonner";
-import { createSong, type Song } from "@/lib/storage";
 import { useQueryState } from "nuqs";
 import { cn } from "@/lib/utils";
+import { useUploadSong } from "@/queries/songs";
+import type { Song } from "@/contexts/LibraryContext";
 
 // =============================================================================
 // Constants
@@ -124,8 +125,8 @@ interface UploadFormData {
   title: string;
   composer: string;
   difficulty: Song["difficulty"];
-  content: string;
   filename: string;
+  file: File | null;
 }
 
 // =============================================================================
@@ -371,6 +372,8 @@ function SearchView({
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const uploadSong = useUploadSong();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useQueryState("q", {
@@ -380,8 +383,8 @@ export default function HomePage() {
     title: "",
     composer: "",
     difficulty: "Beginner",
-    content: "",
     filename: "",
+    file: null,
   });
 
   const isSearching = searchQuery.trim().length > 0;
@@ -411,7 +414,6 @@ export default function HomePage() {
     }
 
     try {
-      const content = await file.text();
       const filenameWithoutExt = file.name.replace(
         /\.(xml|musicxml|mxl)$/i,
         ""
@@ -421,7 +423,7 @@ export default function HomePage() {
         title: filenameWithoutExt,
         composer: "",
         difficulty: "Beginner",
-        content,
+        file,
         filename: file.name,
       });
       setIsModalOpen(true);
@@ -430,24 +432,30 @@ export default function HomePage() {
     }
   };
 
-  const handleSaveAndPlay = () => {
+  const handleSaveAndPlay = async () => {
     if (!formData.title.trim()) {
       toast.error("Please enter a title");
       return;
     }
-
-    const song = createSong({
-      title: formData.title.trim(),
-      composer: formData.composer.trim(),
-      difficulty: formData.difficulty,
-      duration: "",
-      content: formData.content,
-      filename: formData.filename,
-    });
-
-    setIsModalOpen(false);
-    toast.success("Song added to your library");
-    navigate(`/play/${song.id}`);
+    // You need the original File object, not just content
+    uploadSong.mutate(
+      {
+        title: formData.title.trim(),
+        composer: formData.composer.trim(),
+        difficulty: formData.difficulty,
+        file: formData.file!,
+      },
+      {
+        onSuccess: (song) => {
+          setIsModalOpen(false);
+          toast.success("Song added to your library");
+          navigate(`/play/${song.id}`);
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      }
+    );
   };
 
   const handleUploadClick = () => {
