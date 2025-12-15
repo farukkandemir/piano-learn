@@ -46,8 +46,8 @@ export const useSongContent = (filePath: string) => {
     },
     enabled: !!filePath, // Only run if filePath exists
 
-    staleTime: 60 * 60 * 1000, // 1 hour
-    gcTime: 60 * 60 * 1000, // 1 hour
+    staleTime: Infinity, // This query will never be stale means it will never be refetched
+    gcTime: Infinity, // This query will never be garbage collected means it will never be removed from the cache
   });
 };
 
