@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import SheetMusic, {
   type NoteInfo,
@@ -114,7 +114,7 @@ const KEYBOARD_MAP: Record<string, number> = {
 
 export default function PlayPage() {
   const navigate = useNavigate();
-  const { songId } = useParams<{ songId: string }>();
+  const { songId } = useParams({ from: "/play/$songId" });
   // const [song, setSong] = useState<Song | null>(null);
 
   const {
@@ -297,7 +297,7 @@ export default function PlayPage() {
 
   if (songError || songContentError) {
     toast("Something went wrong");
-    navigate("/");
+    navigate({ to: "/" });
     return null;
   }
 
@@ -311,7 +311,7 @@ export default function PlayPage() {
 
   if (!song || !songContent) {
     toast("Song not found");
-    navigate("/");
+    navigate({ to: "/" });
     return null;
   }
 
@@ -322,7 +322,7 @@ export default function PlayPage() {
         <div className="px-4 py-2 flex items-center justify-between">
           {/* Left: Back button (isolated escape hatch) */}
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => navigate({ to: "/" })}
             variant="ghost"
             size="icon"
             className="shrink-0"

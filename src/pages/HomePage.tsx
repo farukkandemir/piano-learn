@@ -1,5 +1,5 @@
 import { useState, useRef, type ChangeEvent, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/select";
 import { Upload, Clock, Music, ArrowRight, Search } from "lucide-react";
 import { toast } from "sonner";
-import { useQueryState } from "nuqs";
 import { cn } from "@/lib/utils";
 import { useUploadSong } from "@/queries/songs";
 import type { Song } from "@/types/song";
@@ -376,9 +375,7 @@ export default function HomePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useQueryState("q", {
-    defaultValue: "",
-  });
+
   const [formData, setFormData] = useState<UploadFormData>({
     title: "",
     composer: "",
@@ -386,6 +383,12 @@ export default function HomePage() {
     filename: "",
     file: null,
   });
+
+  const { q: searchQuery = "" } = useSearch({ from: "/" });
+
+  const setSearchQuery = (value: string) => {
+    navigate({ to: "/", search: { q: value || undefined } });
+  };
 
   const isSearching = searchQuery.trim().length > 0;
 
@@ -449,7 +452,12 @@ export default function HomePage() {
         onSuccess: (song) => {
           setIsModalOpen(false);
           toast.success("Song added to your library");
-          navigate(`/play/${song.id}`);
+          navigate({
+            to: "/play/$songId",
+            params: {
+              songId: song.id,
+            },
+          });
         },
         onError: (error) => {
           toast.error(error.message);
