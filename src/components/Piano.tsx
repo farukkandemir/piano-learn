@@ -99,9 +99,20 @@ export default function Piano({
   // Separate white and black keys for rendering
   const whiteKeys = keys.filter((k) => !k.isBlack);
 
+  const keyStyles = {
+    whiteKey: {
+      width: "clamp(0.75rem, 1.8vw, 2rem)", // 12px min → 32px max
+      height: "clamp(5rem, 12vh, 9rem)", // 80px min → 144px max
+    },
+    blackKey: {
+      width: "clamp(0.5rem, 1.1vw, 1.5rem)", // 8px min → 24px max
+      height: "clamp(3.5rem, 8vh, 6rem)", // 56px min → 96px max
+    },
+  };
+
   return (
-    <div className="h-full flex items-end justify-center pb-2 overflow-x-auto">
-      <div className="relative flex" style={{ minWidth: "fit-content" }}>
+    <div className="h-full flex items-end justify-center pb-2">
+      <div className="relative inline-flex max-w-[1700px]">
         {/* White keys */}
         <div className="flex">
           {whiteKeys.map((key) => {
@@ -111,8 +122,9 @@ export default function Piano({
             return (
               <div
                 key={key.midi}
+                style={keyStyles.whiteKey}
                 className={`
-                  relative h-36 w-8 border border-zinc-300 rounded-b-md
+                  relative border border-zinc-300 rounded-b-md
                   transition-all duration-75
                   ${getKeyStyle(key.midi, false)}
                 `}
@@ -138,17 +150,37 @@ export default function Piano({
             // Check if there's a black key after this white key
             const blackMidi = whiteKey.midi + 1;
             if (blackMidi > LAST_NOTE || !isBlackKey(blackMidi)) {
-              return <div key={whiteKey.midi} className="w-8" />;
+              return (
+                <div
+                  key={whiteKey.midi}
+                  style={{ width: keyStyles.whiteKey.width }}
+                />
+              );
             }
 
             const blackKey = keys.find((k) => k.midi === blackMidi);
-            if (!blackKey) return <div key={whiteKey.midi} className="w-8" />;
+            if (!blackKey)
+              return (
+                <div
+                  key={whiteKey.midi}
+                  style={{ width: keyStyles.whiteKey.width }}
+                />
+              );
 
             return (
-              <div key={whiteKey.midi} className="w-8 relative">
+              <div
+                key={whiteKey.midi}
+                className="relative"
+                style={{ width: keyStyles.whiteKey.width }}
+              >
                 <div
+                  style={{
+                    width: keyStyles.blackKey.width,
+                    height: keyStyles.blackKey.height,
+                    right: `calc(-1 * ${keyStyles.blackKey.width} / 2)`,
+                  }}
                   className={`
-                    absolute -right-3 top-0 h-24 w-6 z-10 rounded-b-md
+                    absolute  top-0 z-10 rounded-b-md
                     transition-all duration-75
                     ${getKeyStyle(blackKey.midi, true)}
                   `}
