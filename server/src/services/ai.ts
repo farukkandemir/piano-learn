@@ -29,7 +29,7 @@ Style: Cinematic, artistic with dramatic lighting.
 No text, letters, or words in the image.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash-exp",
+    model: "gemini-2.5-flash-image",
     contents: prompt,
     config: {
       responseModalities: ["image", "text"],
