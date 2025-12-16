@@ -56,7 +56,7 @@ export const useUploadSong = () => {
 
   return useMutation({
     mutationFn: async (data: UploadSongData) => {
-      const { title, composer, difficulty, file } = data;
+      const { title, composer, difficulty, file, userId } = data;
       // Generate unique file path
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random()
@@ -75,6 +75,7 @@ export const useUploadSong = () => {
           composer: composer || null,
           difficulty,
           file_path: fileName,
+          user_id: userId,
         })
         .select()
         .single();

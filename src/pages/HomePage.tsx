@@ -393,7 +393,7 @@ function SearchView({
 export default function HomePage() {
   const navigate = useNavigate();
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const uploadSong = useUploadSong();
 
@@ -471,6 +471,7 @@ export default function HomePage() {
         composer: formData.composer.trim(),
         difficulty: formData.difficulty,
         file: formData.file!,
+        userId: user?.id!,
       },
       {
         onSuccess: (song) => {

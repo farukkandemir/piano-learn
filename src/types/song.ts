@@ -12,4 +12,5 @@ export interface UploadSongData {
   composer?: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   file: File;
+  userId: string;
 }
