@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Layout } from "@/components/Layout";
+import { toast } from "sonner";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -13,20 +14,18 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      toast.error("Password must be at least 6 characters");
       return;
     }
 
@@ -35,7 +34,7 @@ export default function SignupPage() {
     const { error } = await signUp(email, password);
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
       setIsSubmitting(false);
     } else {
       navigate({ to: "/" });
@@ -45,7 +44,7 @@ export default function SignupPage() {
   const handleGoogleSignIn = async () => {
     const { error } = await signInWithGoogle();
     if (error) {
-      setError(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -107,8 +106,6 @@ export default function SignupPage() {
               required
             />
           </div>
-
-          {error && <p className="text-sm text-red-500">{error}</p>}
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Creating account..." : "Create account"}
