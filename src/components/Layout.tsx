@@ -5,6 +5,16 @@ import { LogOut, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { useAuth } from "@/context/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import type { User } from "@supabase/supabase-js";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +22,36 @@ interface LayoutProps {
   searchQuery?: string;
   onSearchChange?: (value: string) => void;
 }
+
+const UserProfile = ({
+  user,
+  signOut,
+}: {
+  user: User;
+  signOut: () => void;
+}) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="ml-3 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+          <div className="h-8 w-8 rounded-sm bg-muted flex items-center justify-center text-xs font-medium">
+            {user.email?.charAt(0).toUpperCase()}
+          </div>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal truncate">
+          {user.email}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={signOut} className="text-sm cursor-pointer">
+          <LogOut className="mr-2 h-3.5 w-3.5" />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 export function Layout({
   children,
@@ -72,19 +112,7 @@ export function Layout({
             </nav>
 
             {user ? (
-              <div className="flex items-center gap-2 ml-2">
-                <span className="text-sm text-muted-foreground hidden sm:block">
-                  {user.email}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={signOut}
-                  className="text-muted-foreground"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </div>
+              <UserProfile user={user} signOut={signOut} />
             ) : (
               <Link
                 to="/login"
