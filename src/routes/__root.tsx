@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import NotFound from "@/components/not-found";
+import { AuthProvider } from "@/context/auth";
 
 const queryClient = new QueryClient();
 export const Route = createRootRoute({
@@ -11,7 +12,9 @@ export const Route = createRootRoute({
       <ThemeProvider>
         <Toaster position="top-center" duration={3000} richColors />
         <div className="min-h-screen">
-          <Outlet />
+          <AuthProvider>
+            <Outlet />
+          </AuthProvider>
         </div>
       </ThemeProvider>
     </QueryClientProvider>
