@@ -161,7 +161,7 @@ function UploadButton({
       <section className="mb-8 flex justify-center">
         <Link
           to="/login"
-          className="group flex items-center gap-3 rounded-lg border border-border px-5 py-3 text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+          className="group flex items-center gap-3 rounded-lg bg-foreground px-5 py-3 text-background hover:bg-foreground/90"
         >
           <Upload className="h-4 w-4" />
           <span className="text-sm font-medium">Sign in to upload</span>
@@ -170,7 +170,6 @@ function UploadButton({
       </section>
     );
   }
-
   return (
     <section className="mb-8 flex justify-center">
       <button
