@@ -1,5 +1,5 @@
 import { useState, useRef, type ChangeEvent, useMemo } from "react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useUploadSong } from "@/queries/songs";
 import type { Song } from "@/types/song";
+import { useAuth } from "@/context/auth";
 
 // =============================================================================
 // Constants
@@ -148,7 +149,28 @@ function HeroSection() {
   );
 }
 
-function UploadButton({ onClick }: { onClick: () => void }) {
+function UploadButton({
+  onClick,
+  isAuthenticated,
+}: {
+  onClick: () => void;
+  isAuthenticated: boolean;
+}) {
+  if (!isAuthenticated) {
+    return (
+      <section className="mb-8 flex justify-center">
+        <Link
+          to="/login"
+          className="group flex items-center gap-3 rounded-lg border border-border px-5 py-3 text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+        >
+          <Upload className="h-4 w-4" />
+          <span className="text-sm font-medium">Sign in to upload</span>
+          <ArrowRight className="h-4 w-4 opacity-60" />
+        </Link>
+      </section>
+    );
+  }
+
   return (
     <section className="mb-8 flex justify-center">
       <button
@@ -371,6 +393,9 @@ function SearchView({
 
 export default function HomePage() {
   const navigate = useNavigate();
+
+  const { isAuthenticated } = useAuth();
+
   const uploadSong = useUploadSong();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -507,7 +532,10 @@ export default function HomePage() {
               onChange={handleInputChange}
               className="hidden"
             />
-            <UploadButton onClick={handleUploadClick} />
+            <UploadButton
+              onClick={handleUploadClick}
+              isAuthenticated={isAuthenticated}
+            />
 
             <Divider />
 

@@ -11,6 +11,8 @@ import {
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+
+  isAuthenticated: boolean;
   loading: boolean;
 
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -79,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signInWithGoogle,
         signOut,
+        isAuthenticated: !!user,
       }}
     >
       {children}
