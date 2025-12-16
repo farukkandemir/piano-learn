@@ -1,8 +1,10 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { useAuth } from "@/context/auth";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,6 +20,8 @@ export function Layout({
   onSearchChange,
 }: LayoutProps) {
   const location = useLocation();
+
+  const { user, signOut } = useAuth();
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -66,6 +70,30 @@ export function Layout({
                 </Link>
               ))}
             </nav>
+
+            {user ? (
+              <div className="flex items-center gap-2 ml-2">
+                <span className="text-sm text-muted-foreground hidden sm:block">
+                  {user.email}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={signOut}
+                  className="text-muted-foreground"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="ml-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Sign in
+              </Link>
+            )}
+
             <ModeToggle />
           </div>
         </div>
