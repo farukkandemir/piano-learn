@@ -30,9 +30,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useUploadSong } from "@/queries/songs";
+import { useCommunitySongs, useUploadSong } from "@/queries/songs";
 import type { Song } from "@/types/song";
 import { useAuth } from "@/context/auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // =============================================================================
 // Constants
@@ -45,7 +46,7 @@ interface FeaturedSong {
   title: string;
   composer: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
-  duration: string;
+  duration?: string;
   image?: string;
 }
 
@@ -208,13 +209,13 @@ function Divider() {
   );
 }
 
-function SongCard({ song }: { song: FeaturedSong }) {
+function SongCard({ song }: { song: Song }) {
   return (
     <Card className="group overflow-hidden border-0 bg-transparent shadow-none">
       <div className="aspect-4/3 overflow-hidden rounded-lg bg-muted">
-        {song.image ? (
+        {song.cover_url ? (
           <img
-            src={song.image}
+            src={song.cover_url}
             alt={song.title}
             className="h-full w-full object-cover"
           />
@@ -232,17 +233,42 @@ function SongCard({ song }: { song: FeaturedSong }) {
             {song.difficulty}
           </span>
           <span className="text-muted-foreground/30">·</span>
-          <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
-            <Clock className="h-3 w-3" />
-            {song.duration}
-          </span>
+          {/* {song.duration && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
+              <Clock className="h-3 w-3" />
+              {song.duration}
+            </span>
+          )} */}
         </div>
       </div>
     </Card>
   );
 }
 
-function CommunitySection() {
+function SongCardSkeleton() {
+  return (
+    <Card className="group overflow-hidden border-0 bg-transparent shadow-none">
+      <Skeleton className="aspect-4/3 rounded-lg" />
+      <div className="pt-3 space-y-1">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
+        <div className="flex items-center gap-2 pt-1">
+          <Skeleton className="h-3 w-16" />
+          <span className="text-muted-foreground/30">·</span>
+          <Skeleton className="h-3 w-12" />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function CommunitySection({
+  songs,
+  isLoading,
+}: {
+  songs: Song[] | undefined;
+  isLoading: boolean;
+}) {
   return (
     <section className="mt-[5%]">
       <div className="flex items-center justify-between">
@@ -253,9 +279,11 @@ function CommunitySection() {
         </Button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURED_SONGS.map((song) => (
-          <SongCard key={song.id} song={song} />
-        ))}
+        {isLoading
+          ? Array.from({ length: 6 }).map((_, index) => (
+              <SongCardSkeleton key={index} />
+            ))
+          : songs?.map((song) => <SongCard key={song.id} song={song} />)}
       </div>
     </section>
   );
@@ -302,9 +330,7 @@ function UploadModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="composer">
-              Composer <span className="text-muted-foreground">(optional)</span>
-            </Label>
+            <Label htmlFor="composer">Composer</Label>
             <Input
               id="composer"
               placeholder="e.g., Beethoven"
@@ -363,7 +389,7 @@ function SearchView({
   onClearSearch,
 }: {
   query: string;
-  songs: FeaturedSong[];
+  songs: Song[];
   onClearSearch: () => void;
 }) {
   if (songs.length === 0) {
@@ -410,6 +436,8 @@ export default function HomePage() {
 
   const uploadSong = useUploadSong();
 
+  const { data: communitySongs, isLoading } = useCommunitySongs();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -430,10 +458,12 @@ export default function HomePage() {
   const isSearching = searchQuery.trim().length > 0;
 
   const filteredSongs = useMemo(() => {
-    if (!isSearching) return FEATURED_SONGS;
+    if (!communitySongs) return [];
+
+    if (!isSearching) return communitySongs;
 
     const searchQueryLower = searchQuery.toLowerCase();
-    return FEATURED_SONGS.filter(
+    return communitySongs.filter(
       (song) =>
         song.title.toLowerCase().includes(searchQueryLower) ||
         song.composer.toLowerCase().includes(searchQueryLower)
@@ -475,6 +505,11 @@ export default function HomePage() {
   const handleSaveAndPlay = async () => {
     if (!formData.title.trim()) {
       toast.error("Please enter a title");
+      return;
+    }
+
+    if (!formData.composer.trim()) {
+      toast.error("Please enter a composer");
       return;
     }
     // You need the original File object, not just content
@@ -551,7 +586,7 @@ export default function HomePage() {
 
             <Divider />
 
-            <CommunitySection />
+            <CommunitySection songs={communitySongs} isLoading={isLoading} />
           </>
         ) : (
           <SearchView

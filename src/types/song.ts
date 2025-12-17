@@ -1,7 +1,7 @@
 export interface Song {
   id: string;
   title: string;
-  composer: string | null;
+  composer: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   file_path: string;
   cover_url: string | null;
@@ -9,7 +9,7 @@ export interface Song {
 }
 export interface UploadSongData {
   title: string;
-  composer?: string;
+  composer: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   file: File;
   userId: string;

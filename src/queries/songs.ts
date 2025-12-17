@@ -3,6 +3,44 @@ import { MUSICXML_BUCKET, supabase } from "@/lib/supabase";
 import type { Song, UploadSongData } from "@/types/song";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+export const useCommunitySongs = () => {
+  const curatorId = import.meta.env.VITE_CURATOR_USER_ID;
+
+  return useQuery({
+    queryKey: ["songs", "community"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("songs")
+        .select("*")
+        .eq("user_id", curatorId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Song[];
+    },
+    enabled: !!curatorId,
+    staleTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 60 * 60 * 1000, // 1 hour
+  });
+};
+
+export const useUserSongs = (userId: string) => {
+  return useQuery({
+    queryKey: ["songs", "user", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("songs")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Song[];
+    },
+    enabled: !!userId,
+    staleTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 60 * 60 * 1000, // 1 hour
+  });
+};
+
 export const useSong = (id: string) => {
   return useQuery({
     queryKey: ["songs", id],
