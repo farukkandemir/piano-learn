@@ -1,3 +1,4 @@
+import { api } from "@/lib/api";
 import { MUSICXML_BUCKET, supabase } from "@/lib/supabase";
 import type { Song, UploadSongData } from "@/types/song";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -57,6 +58,7 @@ export const useUploadSong = () => {
   return useMutation({
     mutationFn: async (data: UploadSongData) => {
       const { title, composer, difficulty, file, userId } = data;
+
       // Generate unique file path
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random()
@@ -80,6 +82,25 @@ export const useUploadSong = () => {
         .select()
         .single();
       if (insertError) throw insertError;
+
+      api.imageCovers
+        .generate({ title, composer, songId: insertedSong.id })
+        .then(async ({ imageUrl }) => {
+          // Update song with cover URL
+          await supabase
+            .from("songs")
+            .update({ cover_url: imageUrl })
+            .eq("id", insertedSong.id);
+          // Refresh the cache so UI updates
+          queryClient.invalidateQueries({ queryKey: ["songs"] });
+          queryClient.invalidateQueries({
+            queryKey: ["songs", insertedSong.id],
+          });
+        })
+        .catch((error) => {
+          console.warn("Background cover generation failed:", error);
+        });
+
       return insertedSong as Song;
     },
     onSuccess: () => {
