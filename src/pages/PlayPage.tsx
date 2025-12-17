@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import SheetMusic, {
   type NoteInfo,
   type ProgressInfo,
@@ -20,6 +20,9 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useSong, useSongContent } from "@/queries/songs";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+type HandMode = "left" | "right" | "both";
 
 // ============================================================
 // ERGONOMIC KEYBOARD TO PIANO MAPPING
@@ -115,7 +118,8 @@ const KEYBOARD_MAP: Record<string, number> = {
 export default function PlayPage() {
   const navigate = useNavigate();
   const { songId } = useParams({ from: "/play/$songId" });
-  // const [song, setSong] = useState<Song | null>(null);
+
+  const [handMode, setHandMode] = useState<HandMode>("both");
 
   const {
     data: song,
@@ -139,6 +143,11 @@ export default function PlayPage() {
   });
   const hasAdvancedRef = useRef(false);
   const checkAndAdvanceRef = useRef<(keys: Set<number>) => void>(() => {});
+
+  const filteredNotes = useMemo(() => {
+    if (handMode === "both") return currentNotes;
+    return currentNotes.filter((note) => note.hand === handMode);
+  }, [currentNotes, handMode]);
 
   // MIDI integration
   const midi = useMidi({
@@ -204,9 +213,9 @@ export default function PlayPage() {
   // Check if all required notes are currently pressed
   const checkAndAdvance = useCallback(
     (currentPressed: Set<number>) => {
-      if (currentNotes.length === 0 || hasAdvancedRef.current) return;
+      if (filteredNotes.length === 0 || hasAdvancedRef.current) return;
 
-      const requiredNotes = new Set(currentNotes.map((n) => n.midiNumber));
+      const requiredNotes = new Set(filteredNotes.map((n) => n.midiNumber));
       const allPressed = [...requiredNotes].every((note) =>
         currentPressed.has(note)
       );
@@ -218,8 +227,21 @@ export default function PlayPage() {
         }, 100);
       }
     },
-    [currentNotes]
+    [filteredNotes]
   );
+
+  // Auto-skip when no notes for selected hand mode
+  useEffect(() => {
+    if (handMode === "both") return; // No auto-skip in "both" mode
+
+    // If we have notes from the sheet but none for our selected hand, auto-skip
+    if (currentNotes.length > 0 && filteredNotes.length === 0) {
+      const timer = setTimeout(() => {
+        (window as any).osmdControls?.next();
+      }, 50); // Small delay for smooth transition
+      return () => clearTimeout(timer);
+    }
+  }, [currentNotes, filteredNotes, handMode]);
 
   // Keep ref in sync for MIDI callbacks
   useEffect(() => {
@@ -382,6 +404,42 @@ export default function PlayPage() {
         />
       </div>
 
+      <div className="flex items-center rounded-md border border-border overflow-hidden">
+        <button
+          onClick={() => setHandMode("left")}
+          className={cn(
+            "px-3 py-1.5 text-xs font-medium transition-colors",
+            handMode === "left"
+              ? "bg-teal-500 text-white"
+              : "bg-background hover:bg-muted"
+          )}
+        >
+          Left
+        </button>
+        <button
+          onClick={() => setHandMode("both")}
+          className={cn(
+            "px-3 py-1.5 text-xs font-medium transition-colors border-x border-border",
+            handMode === "both"
+              ? "bg-primary text-primary-foreground"
+              : "bg-background hover:bg-muted"
+          )}
+        >
+          Both
+        </button>
+        <button
+          onClick={() => setHandMode("right")}
+          className={cn(
+            "px-3 py-1.5 text-xs font-medium transition-colors",
+            handMode === "right"
+              ? "bg-orange-500 text-white"
+              : "bg-background hover:bg-muted"
+          )}
+        >
+          Right
+        </button>
+      </div>
+
       {/* Bottom Controls - Option A style: Controls near the piano */}
       <div className="px-4 py-2 bg-muted/50 border-t border-border/40">
         <div className="flex items-center justify-center gap-4">
@@ -420,7 +478,7 @@ export default function PlayPage() {
 
       {/* Piano Area */}
       <div className="h-44 bg-muted/30 border-t border-border/40">
-        <Piano highlightedNotes={currentNotes} pressedKeys={pressedKeys} />
+        <Piano highlightedNotes={filteredNotes} pressedKeys={pressedKeys} />
       </div>
 
       {/* Audio loading indicator - subtle toast-like */}
