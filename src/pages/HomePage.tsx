@@ -20,7 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Clock, Music, ArrowRight, Search } from "lucide-react";
+import {
+  Upload,
+  Clock,
+  Music,
+  ArrowRight,
+  Search,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useUploadSong } from "@/queries/songs";
@@ -260,6 +267,7 @@ interface UploadModalProps {
   formData: UploadFormData;
   onFormChange: (data: UploadFormData) => void;
   onSave: () => void;
+  isUploading: boolean;
 }
 
 function UploadModal({
@@ -268,6 +276,7 @@ function UploadModal({
   formData,
   onFormChange,
   onSave,
+  isUploading,
 }: UploadModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -330,9 +339,13 @@ function UploadModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={onSave}>
-            Save & Play
-            <ArrowRight className="ml-2 h-4 w-4" />
+          <Button onClick={onSave} disabled={isUploading}>
+            {isUploading ? "Uploading..." : "Save & Play"}
+            {isUploading ? (
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowRight className="ml-2 h-4 w-4" />
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -475,7 +488,6 @@ export default function HomePage() {
       },
       {
         onSuccess: (song) => {
-          setIsModalOpen(false);
           toast.success("Song added to your library");
           navigate({
             to: "/play/$songId",
@@ -556,6 +568,7 @@ export default function HomePage() {
         formData={formData}
         onFormChange={setFormData}
         onSave={handleSaveAndPlay}
+        isUploading={uploadSong.isPending}
       />
     </Layout>
   );
