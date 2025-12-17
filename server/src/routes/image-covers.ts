@@ -3,10 +3,12 @@ import type { Request, Response } from "express";
 import { generateCoverImage } from "../services/ai.js";
 import { supabase, COVER_IMAGES_BUCKET } from "../lib/supabase.js";
 
+import { requireAuth } from "../middleware/auth.js";
+
 const router = Router();
 
 // POST /api/covers/generate
-router.post("/generate", async (req: Request, res: Response) => {
+router.post("/generate", requireAuth, async (req: Request, res: Response) => {
   try {
     const { title, composer, songId } = req.body;
 

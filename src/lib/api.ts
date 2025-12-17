@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 /**
  * API Client
  * Clean, modern utility for handling API calls to the Express backend.
@@ -52,10 +54,17 @@ async function request<T>(
 ): Promise<T> {
   const { method = "GET", body, headers = {} } = options;
 
+  // Get current Supabase session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
   const config: RequestInit = {
     method,
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
   };
