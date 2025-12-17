@@ -120,37 +120,39 @@ function Divider() {
 
 function SongCard({ song }: { song: Song }) {
   return (
-    <Card className="group overflow-hidden border-0 bg-transparent shadow-none">
-      <div className="aspect-4/3 overflow-hidden rounded-lg bg-muted">
-        {song.cover_url ? (
-          <img
-            src={song.cover_url}
-            alt={song.title}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <Music className="h-8 w-8 text-muted-foreground/40" />
-          </div>
-        )}
-      </div>
-      <div className="pt-3 space-y-1">
-        <h3 className="font-medium text-sm leading-tight">{song.title}</h3>
-        <p className="text-xs text-muted-foreground">{song.composer}</p>
-        <div className="flex items-center gap-2 pt-1">
-          <span className="text-xs text-muted-foreground/70">
-            {song.difficulty}
-          </span>
-          <span className="text-muted-foreground/30">·</span>
-          {/* {song.duration && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
-              <Clock className="h-3 w-3" />
-              {song.duration}
-            </span>
-          )} */}
+    <Link to="/play/$songId" params={{ songId: song.id }}>
+      <Card className="group overflow-hidden border-0 bg-transparent shadow-none">
+        <div className="aspect-4/3 overflow-hidden rounded-lg bg-muted">
+          {song.cover_url ? (
+            <img
+              src={song.cover_url}
+              alt={song.title}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <Music className="h-8 w-8 text-muted-foreground/40" />
+            </div>
+          )}
         </div>
-      </div>
-    </Card>
+        <div className="pt-3 space-y-1">
+          <h3 className="font-medium text-sm leading-tight">{song.title}</h3>
+          <p className="text-xs text-muted-foreground">{song.composer}</p>
+          <div className="flex items-center gap-2 pt-1">
+            <span className="text-xs text-muted-foreground/70">
+              {song.difficulty}
+            </span>
+            <span className="text-muted-foreground/30">·</span>
+            {/* {song.duration && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
+            <Clock className="h-3 w-3" />
+            {song.duration}
+            </span>
+            )} */}
+          </div>
+        </div>
+      </Card>
+    </Link>
   );
 }
 
