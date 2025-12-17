@@ -1,4 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -8,25 +11,11 @@ export async function generateCoverImage(
   title: string,
   composer?: string
 ): Promise<string> {
-  const prompt = `Create a stunning artwork for the piano piece "${title}"${
-    composer ? ` composed by ${composer}` : ""
-  }.
+  const prompt = `Album cover art for "${title}"${composer ? ` by ${composer}` : ""}.
 
-Research and reflect the musical style, era, and emotional character of ${
-    composer ? `${composer}'s compositions` : "this piece based on its title"
-  }.
+Create imagery inspired by the meaning and emotion of this piece's title. Each song should have unique artwork that reflects its character - not generic piano imagery.
 
-The image should:
-- Visually capture the mood and emotion of this specific piece
-- Include subtle musical elements (piano keys, sheet music fragments, musical notes)
-- Have an elegant, premium feel
-- Use colors and atmosphere that match the piece's character
-- Feel authentic to the composer's era and style
-
-Create the artwork only, without any album case, CD case, frame, border, or mockup. Just the raw artwork image that fills the entire canvas.
-
-Style: Cinematic, artistic with dramatic lighting.
-No text, letters, or words in the image.`;
+Cinematic, artistic style. Objects must look natural, not distorted. Fill entire canvas edge-to-edge. No frames, borders, white backgrounds, mockups, or text.`;
 
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-image",
