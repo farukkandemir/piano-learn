@@ -371,7 +371,7 @@ export default function PlayPage() {
               <button
                 onClick={() => setHandMode("left")}
                 className={cn(
-                  "p-1.5 transition-colors",
+                  "p-1.5 ",
                   handMode === "left"
                     ? "bg-teal-500 text-white"
                     : "text-muted-foreground hover:bg-muted"
@@ -383,7 +383,7 @@ export default function PlayPage() {
               <button
                 onClick={() => setHandMode("both")}
                 className={cn(
-                  "p-1.5 transition-colors border-x border-border",
+                  "p-1.5 border-x border-border",
                   handMode === "both"
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-muted"
@@ -398,7 +398,7 @@ export default function PlayPage() {
               <button
                 onClick={() => setHandMode("right")}
                 className={cn(
-                  "p-1.5 transition-colors",
+                  "p-1.5 ",
                   handMode === "right"
                     ? "bg-orange-500 text-white"
                     : "text-muted-foreground hover:bg-muted"
@@ -422,25 +422,23 @@ export default function PlayPage() {
               onRetry={midi.requestAccess}
             />
 
-            <button
+            <Button
               onClick={handleToggleMute}
-              className="p-1.5 rounded-md border border-border text-muted-foreground hover:bg-muted transition-colors"
+              variant="outline"
+              size="icon-sm"
               title={isMuted ? "Unmute" : "Mute"}
             >
-              {isMuted ? (
-                <VolumeX className="h-4 w-4" />
-              ) : (
-                <Volume2 className="h-4 w-4" />
-              )}
-            </button>
+              {isMuted ? <VolumeX /> : <Volume2 />}
+            </Button>
             {/* Reset button */}
-            <button
+            <Button
               onClick={handleReset}
-              className="p-1.5 rounded-md border border-border text-muted-foreground hover:bg-muted transition-colors"
+              variant="outline"
+              size="icon-sm"
               title="Reset to beginning"
             >
-              <RotateCcw className="h-4 w-4" />
-            </button>
+              <RotateCcw />
+            </Button>
           </div>
         </div>
       </header>
