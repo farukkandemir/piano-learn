@@ -422,19 +422,25 @@ export default function PlayPage() {
               onRetry={midi.requestAccess}
             />
 
-            <Button onClick={handleToggleMute} variant="ghost" size="icon">
-              {isMuted ? <VolumeX /> : <Volume2 />}
-            </Button>
-
+            <button
+              onClick={handleToggleMute}
+              className="p-1.5 rounded-md border border-border text-muted-foreground hover:bg-muted transition-colors"
+              title={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? (
+                <VolumeX className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
+            </button>
             {/* Reset button */}
-            <Button
+            <button
               onClick={handleReset}
-              variant="ghost"
-              size="icon"
+              className="p-1.5 rounded-md border border-border text-muted-foreground hover:bg-muted transition-colors"
               title="Reset to beginning"
             >
               <RotateCcw className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         </div>
       </header>

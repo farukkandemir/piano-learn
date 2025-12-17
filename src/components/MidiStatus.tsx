@@ -132,9 +132,12 @@ export default function MidiStatus({
   // No devices available
   if (availableDevices.length === 0) {
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 text-sm bg-zinc-800 text-zinc-500 rounded">
-        <span className="w-2 h-2 rounded-full bg-zinc-600" />
-        <span className="hidden sm:inline">No MIDI Device</span>
+      <div
+        className="flex items-center gap-1.5 p-1.5 text-muted-foreground rounded-md border border-border"
+        title="No MIDI device found"
+      >
+        <span className="w-2 h-2 rounded-full bg-zinc-500" />
+        <span className="hidden sm:inline text-xs">No MIDI</span>
       </div>
     );
   }
