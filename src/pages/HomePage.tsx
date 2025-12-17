@@ -20,14 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Upload,
-  Clock,
-  Music,
-  ArrowRight,
-  Search,
-  Loader2,
-} from "lucide-react";
+import { Upload, Music, ArrowRight, Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useCommunitySongs, useUploadSong } from "@/queries/songs";
@@ -40,90 +33,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 // =============================================================================
 
 const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
-
-interface FeaturedSong {
-  id: string;
-  title: string;
-  composer: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
-  duration?: string;
-  image?: string;
-}
-
-const FEATURED_SONGS: FeaturedSong[] = [
-  {
-    id: "1",
-    title: "Für Elise",
-    composer: "Beethoven",
-    difficulty: "Intermediate",
-    duration: "3:00",
-    image:
-      "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=400&h=300&fit=crop",
-  },
-  {
-    id: "2",
-    title: "Moonlight Sonata",
-    composer: "Beethoven",
-    difficulty: "Advanced",
-    duration: "5:30",
-    image:
-      "https://images.unsplash.com/photo-1552422535-c45813c61732?w=400&h=300&fit=crop",
-  },
-  {
-    id: "3",
-    title: "Clair de Lune",
-    composer: "Debussy",
-    difficulty: "Advanced",
-    duration: "4:45",
-    image:
-      "https://images.unsplash.com/photo-1514119412350-e174d90d280e?w=400&h=300&fit=crop",
-  },
-  {
-    id: "4",
-    title: "Prelude in C Major",
-    composer: "Bach",
-    difficulty: "Beginner",
-    duration: "2:15",
-    image:
-      "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&h=300&fit=crop",
-  },
-  {
-    id: "5",
-    title: "Gymnopédie No. 1",
-    composer: "Satie",
-    difficulty: "Beginner",
-    duration: "3:20",
-    image:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
-  },
-  {
-    id: "6",
-    title: "Nocturne Op. 9 No. 2",
-    composer: "Chopin",
-    difficulty: "Intermediate",
-    duration: "4:30",
-    image:
-      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=300&fit=crop",
-  },
-  {
-    id: "7",
-    title: "Nocturne Op. 9 No. 2",
-    composer: "Chopin",
-    difficulty: "Intermediate",
-    duration: "4:30",
-    image:
-      "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=300&fit=crop",
-  },
-  {
-    id: "8",
-    title: "Nocturne Op. 9 No. 2",
-    composer: "Chopin",
-    difficulty: "Intermediate",
-    duration: "4:30",
-    image:
-      "https://images.unsplash.com/photo-1571974599782-87624638275e?w=400&h=300&fit=crop",
-  },
-];
 
 // =============================================================================
 // Types
@@ -468,7 +377,7 @@ export default function HomePage() {
         song.title.toLowerCase().includes(searchQueryLower) ||
         song.composer.toLowerCase().includes(searchQueryLower)
     );
-  }, [searchQuery]);
+  }, [searchQuery, communitySongs, isSearching]);
 
   const validateFile = (file: File): boolean => {
     const extension = "." + file.name.split(".").pop()?.toLowerCase();
