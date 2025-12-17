@@ -15,6 +15,7 @@ import {
   ChevronRight,
   VolumeX,
   Volume2,
+  Hand,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -365,6 +366,49 @@ export default function PlayPage() {
 
           {/* Right: Status indicators + Reset */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Hand Mode Toggle */}
+            <div className="flex items-center rounded-md border border-border overflow-hidden">
+              <button
+                onClick={() => setHandMode("left")}
+                className={cn(
+                  "p-1.5 transition-colors",
+                  handMode === "left"
+                    ? "bg-teal-500 text-white"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
+                title="Left hand only"
+              >
+                <Hand className="h-4 w-4 -scale-x-100" />
+              </button>
+              <button
+                onClick={() => setHandMode("both")}
+                className={cn(
+                  "p-1.5 transition-colors border-x border-border",
+                  handMode === "both"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
+                title="Both hands"
+              >
+                <div className="flex items-center gap-0.5">
+                  <Hand className="h-3 w-3 -scale-x-100" />
+                  <Hand className="h-3 w-3" />
+                </div>
+              </button>
+              <button
+                onClick={() => setHandMode("right")}
+                className={cn(
+                  "p-1.5 transition-colors",
+                  handMode === "right"
+                    ? "bg-orange-500 text-white"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
+                title="Right hand only"
+              >
+                <Hand className="h-4 w-4" />
+              </button>
+            </div>
+
             {/* MIDI Status - compact dot with dropdown */}
             <MidiStatus
               isSupported={midi.isSupported}
@@ -402,42 +446,6 @@ export default function PlayPage() {
           onNotesChange={handleNotesChange}
           onProgressChange={handleProgressChange}
         />
-      </div>
-
-      <div className="flex items-center rounded-md border border-border overflow-hidden">
-        <button
-          onClick={() => setHandMode("left")}
-          className={cn(
-            "px-3 py-1.5 text-xs font-medium transition-colors",
-            handMode === "left"
-              ? "bg-teal-500 text-white"
-              : "bg-background hover:bg-muted"
-          )}
-        >
-          Left
-        </button>
-        <button
-          onClick={() => setHandMode("both")}
-          className={cn(
-            "px-3 py-1.5 text-xs font-medium transition-colors border-x border-border",
-            handMode === "both"
-              ? "bg-primary text-primary-foreground"
-              : "bg-background hover:bg-muted"
-          )}
-        >
-          Both
-        </button>
-        <button
-          onClick={() => setHandMode("right")}
-          className={cn(
-            "px-3 py-1.5 text-xs font-medium transition-colors",
-            handMode === "right"
-              ? "bg-orange-500 text-white"
-              : "bg-background hover:bg-muted"
-          )}
-        >
-          Right
-        </button>
       </div>
 
       {/* Bottom Controls - Option A style: Controls near the piano */}
