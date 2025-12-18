@@ -28,7 +28,13 @@ import type { Song } from "@/types/song";
 import { useAuth } from "@/context/auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { Controller, useForm } from "react-hook-form";
+import {
+  Controller,
+  useForm,
+  type Control,
+  type FieldErrors,
+  type UseFormRegister,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { uploadSchema, type UploadFormValues } from "@/lib/validations";
 
@@ -185,11 +191,11 @@ function CommunitySection({
 interface UploadModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  register: any;
-  errors: any;
   onSave: () => void;
   isUploading: boolean;
-  control: any;
+  errors: FieldErrors<UploadFormValues>;
+  register: UseFormRegister<UploadFormValues>;
+  control: Control<UploadFormValues>;
 }
 
 function UploadModal({
