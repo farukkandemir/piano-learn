@@ -19,16 +19,3 @@ createRoot(document.getElementById("root")!).render(
     <RouterProvider router={router} />
   </StrictMode>
 );
-
-// createRoot(document.getElementById("root")!).render(
-//   <StrictMode>
-//     <BrowserRouter>
-//       <NuqsAdapter>
-//         <ThemeProvider>
-//           <Toaster position="top-center" duration={3000} richColors />
-//           <App />
-//         </ThemeProvider>
-//       </NuqsAdapter>
-//     </BrowserRouter>
-//   </StrictMode>
-// );
