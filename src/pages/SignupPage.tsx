@@ -1,41 +1,32 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import { useAuth } from "@/context/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Layout } from "@/components/Layout";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signupSchema } from "@/lib/validations";
+import type { SignupFormValues } from "@/lib/validations";
 
 export default function SignupPage() {
   const navigate = useNavigate();
   const { signUp, signInWithGoogle, loading } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: { email: "", password: "", confirmPassword: "" },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    const { error } = await signUp(email, password);
-
+  const onSubmit = async (data: SignupFormValues) => {
+    const { error } = await signUp(data.email, data.password);
     if (error) {
       toast.error(error.message);
-      setIsSubmitting(false);
     } else {
       navigate({ to: "/" });
     }
@@ -72,17 +63,19 @@ export default function SignupPage() {
         </section>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6 mb-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mb-8">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              {...register("email")}
+              className={errors.email ? "border-destructive" : "border-border"}
             />
+            {errors.email && (
+              <p className="text-destructive text-xs">{errors.email.message}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -90,10 +83,16 @@ export default function SignupPage() {
               id="password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              {...register("password")}
+              className={
+                errors.password ? "border-destructive" : "border-border"
+              }
             />
+            {errors.password && (
+              <p className="text-destructive text-xs">
+                {errors.password.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm password</Label>
@@ -101,10 +100,16 @@ export default function SignupPage() {
               id="confirmPassword"
               type="password"
               placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
+              {...register("confirmPassword")}
+              className={
+                errors.confirmPassword ? "border-destructive" : "border-border"
+              }
             />
+            {errors.confirmPassword && (
+              <p className="text-destructive text-xs">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>

@@ -1,29 +1,32 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import { useAuth } from "@/context/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Layout } from "@/components/Layout";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/lib/validations";
+import type { LoginFormValues } from "@/lib/validations";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signIn, signInWithGoogle, loading } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const { error } = await signIn(email, password);
-
+  const onSubmit = async (data: LoginFormValues) => {
+    const { error } = await signIn(data.email, data.password);
     if (error) {
       toast.error(error.message);
-      setIsSubmitting(false);
     } else {
       navigate({ to: "/" });
     }
@@ -60,17 +63,19 @@ export default function LoginPage() {
         </section>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6 mb-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mb-8">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              {...register("email")}
+              className={errors.email ? "border-destructive" : "border-border"}
             />
+            {errors.email && (
+              <p className="text-destructive text-xs">{errors.email.message}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
@@ -78,10 +83,16 @@ export default function LoginPage() {
               id="password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              {...register("password")}
+              className={
+                errors.password ? "border-destructive" : "border-border"
+              }
             />
+            {errors.password && (
+              <p className="text-destructive text-xs">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
