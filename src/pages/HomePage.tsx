@@ -28,29 +28,11 @@ import type { Song } from "@/types/song";
 import { useAuth } from "@/context/auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// =============================================================================
-// Constants
-// =============================================================================
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { uploadSchema, type UploadFormValues } from "@/lib/validations";
 
 const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
-
-// =============================================================================
-// Types
-// =============================================================================
-
-interface UploadFormData {
-  title: string;
-  composer: string;
-  difficulty: Song["difficulty"];
-  filename: string;
-  file: File | null;
-}
-
-// =============================================================================
-// Components
-// =============================================================================
-
-// Navigation is now handled by Layout component
 
 function HeroSection() {
   return (
@@ -203,19 +185,21 @@ function CommunitySection({
 interface UploadModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  formData: UploadFormData;
-  onFormChange: (data: UploadFormData) => void;
+  register: any;
+  errors: any;
   onSave: () => void;
   isUploading: boolean;
+  control: any;
 }
 
 function UploadModal({
   isOpen,
   onOpenChange,
-  formData,
-  onFormChange,
+  register,
+  errors,
   onSave,
   isUploading,
+  control,
 }: UploadModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -229,46 +213,58 @@ function UploadModal({
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label
+              htmlFor="title"
+              className={errors.title ? "text-destructive" : ""}
+            >
+              Title
+            </Label>
             <Input
               id="title"
-              placeholder="e.g., Für Elise"
-              value={formData.title}
-              onChange={(e) =>
-                onFormChange({ ...formData, title: e.target.value })
-              }
+              {...register("title")}
+              className={errors.title ? "border-destructive" : ""}
             />
+            {errors.title && (
+              <p className="text-xs text-destructive">{errors.title.message}</p>
+            )}
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="composer">Composer</Label>
+            <Label
+              htmlFor="composer"
+              className={errors.composer ? "text-destructive" : ""}
+            >
+              Composer
+            </Label>
             <Input
               id="composer"
-              placeholder="e.g., Beethoven"
-              value={formData.composer}
-              onChange={(e) =>
-                onFormChange({ ...formData, composer: e.target.value })
-              }
+              placeholder="(e.g. Beethoven, Mozart, Bach)"
+              {...register("composer")}
+              className={errors.composer ? "border-destructive" : ""}
             />
+            {errors.composer && (
+              <p className="text-xs text-destructive">
+                {errors.composer.message}
+              </p>
+            )}
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="difficulty">Difficulty</Label>
-            <Select
-              value={formData.difficulty}
-              onValueChange={(value: Song["difficulty"]) =>
-                onFormChange({ ...formData, difficulty: value })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select difficulty" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Beginner">Beginner</SelectItem>
-                <SelectItem value="Intermediate">Intermediate</SelectItem>
-                <SelectItem value="Advanced">Advanced</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="difficulty"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Beginner">Beginner</SelectItem>
+                    <SelectItem value="Intermediate">Intermediate</SelectItem>
+                    <SelectItem value="Advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
         </div>
 
@@ -349,16 +345,21 @@ export default function HomePage() {
 
   const { data: communitySongs, isLoading } = useCommunitySongs();
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<UploadFormValues>({
+    resolver: zodResolver(uploadSchema),
+    defaultValues: { title: "", composer: "", difficulty: "Beginner" },
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [formData, setFormData] = useState<UploadFormData>({
-    title: "",
-    composer: "",
-    difficulty: "Beginner",
-    filename: "",
-    file: null,
-  });
 
   const { q: searchQuery = "" } = useSearch({ from: "/" });
 
@@ -400,51 +401,30 @@ export default function HomePage() {
         ""
       );
 
-      setFormData({
-        title: filenameWithoutExt,
-        composer: "",
-        difficulty: "Beginner",
-        file,
-        filename: file.name,
-      });
+      setValue("title", filenameWithoutExt);
+      setSelectedFile(file);
       setIsModalOpen(true);
     } catch {
       toast.error("Failed to read file. Please try again.");
     }
   };
 
-  const handleSaveAndPlay = async () => {
-    if (!formData.title.trim()) {
-      toast.error("Please enter a title");
-      return;
-    }
-
-    if (!formData.composer.trim()) {
-      toast.error("Please enter a composer");
+  const onSubmit = async (data: UploadFormValues) => {
+    if (!selectedFile) {
+      toast.error("Please select a file");
       return;
     }
     // You need the original File object, not just content
     uploadSong.mutate(
-      {
-        title: formData.title.trim(),
-        composer: formData.composer.trim(),
-        difficulty: formData.difficulty,
-        file: formData.file!,
-        userId: user?.id!,
-      },
+      { ...data, file: selectedFile, userId: user?.id! },
       {
         onSuccess: (song) => {
           toast.success("Song added to your library");
-          navigate({
-            to: "/play/$songId",
-            params: {
-              songId: song.id,
-            },
-          });
+          reset(); // Clear form
+          setIsModalOpen(false);
+          navigate({ to: "/play/$songId", params: { songId: song.id } });
         },
-        onError: (error) => {
-          toast.error(error.message);
-        },
+        onError: (error) => toast.error(error.message),
       }
     );
   };
@@ -511,10 +491,11 @@ export default function HomePage() {
       <UploadModal
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
-        formData={formData}
-        onFormChange={setFormData}
-        onSave={handleSaveAndPlay}
+        register={register}
+        errors={errors}
+        onSave={handleSubmit(onSubmit)}
         isUploading={uploadSong.isPending}
+        control={control}
       />
     </Layout>
   );
