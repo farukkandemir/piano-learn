@@ -14,7 +14,8 @@ export async function generateCoverImage(
   const prompt = `Album cover for "${title}"${composer ? ` by ${composer}` : ""}. Abstract, stylized interpretation - NOT literal or photorealistic. Capture the emotion, not the dictionary meaning. Painterly, dreamy, or surreal aesthetic. Single unified image, no collage. Edge-to-edge, no text or borders.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-3-pro-image-preview",
+    // model: "gemini-3-pro-image-preview",
+    model: "gemini-2.5-flash-image",
     contents: prompt,
     config: {
       responseModalities: ["image", "text"],
