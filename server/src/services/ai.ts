@@ -11,14 +11,10 @@ export async function generateCoverImage(
   title: string,
   composer?: string
 ): Promise<string> {
-  const prompt = `Album cover art for "${title}"${composer ? ` by ${composer}` : ""}.
-
-Create imagery inspired by the meaning and emotion of this piece's title. Each song should have unique artwork that reflects its character - not generic piano imagery.
-
-Cinematic, artistic style. Objects must look natural, not distorted. Fill entire canvas edge-to-edge. No frames, borders, white backgrounds, mockups, or text.`;
+  const prompt = `Album cover for "${title}"${composer ? ` by ${composer}` : ""}. Abstract, stylized interpretation - NOT literal or photorealistic. Capture the emotion, not the dictionary meaning. Painterly, dreamy, or surreal aesthetic. Single unified image, no collage. Edge-to-edge, no text or borders.`;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-image",
+    model: "gemini-3-pro-image-preview",
     contents: prompt,
     config: {
       responseModalities: ["image", "text"],
