@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import NotFound from "@/components/not-found";
+import { RouterErrorComponent } from "@/components/RouterErrorComponent";
 import { AuthProvider } from "@/context/auth";
 
 const queryClient = new QueryClient();
@@ -20,4 +21,5 @@ export const Route = createRootRoute({
     </QueryClientProvider>
   ),
   notFoundComponent: NotFound,
+  errorComponent: RouterErrorComponent,
 });
