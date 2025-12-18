@@ -12,7 +12,7 @@ import type { LoginFormValues } from "@/lib/validations";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle, loading } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
 
   const {
     register,
@@ -38,16 +38,6 @@ export default function LoginPage() {
       toast.error(error.message);
     }
   };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>

@@ -12,7 +12,7 @@ import type { SignupFormValues } from "@/lib/validations";
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const { signUp, signInWithGoogle, loading } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
 
   const {
     register,
@@ -38,16 +38,6 @@ export default function SignupPage() {
       toast.error(error.message);
     }
   };
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
