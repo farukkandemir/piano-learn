@@ -33,9 +33,6 @@ function LibraryPage() {
       {isLoading ? (
         // Loading state
         <div>
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-muted-foreground">Loading...</span>
-          </div>
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <SongCardSkeleton key={i} />
