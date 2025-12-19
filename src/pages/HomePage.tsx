@@ -3,14 +3,12 @@ import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
 
-import { Upload, ArrowRight, Search } from "lucide-react";
+import { Upload, ArrowRight, Search, Library } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCommunitySongs } from "@/queries/songs";
 import type { Song } from "@/types/song";
 import { useAuth } from "@/context/auth";
 
-import { useUploadFlow } from "@/hooks/use-upload-flow";
-import { UploadModal } from "@/components/upload-modal";
 import { SongCard, SongCardSkeleton } from "@/components/song-card";
 
 function HeroSection() {
@@ -27,7 +25,7 @@ function HeroSection() {
   );
 }
 
-function UploadButton({
+function HeroCta({
   onClick,
   isAuthenticated,
 }: {
@@ -54,8 +52,8 @@ function UploadButton({
         onClick={onClick}
         className="group flex items-center gap-3 rounded-lg bg-foreground px-5 py-3 text-background hover:bg-foreground/90"
       >
-        <Upload className="h-4 w-4" />
-        <span className="text-sm font-medium">Upload your sheet</span>
+        <Library className="h-4 w-4" />
+        <span className="text-sm font-medium">My Library</span>
         <ArrowRight className="h-4 w-4 opacity-60" />
       </button>
     </section>
@@ -161,8 +159,6 @@ export default function HomePage() {
 
   const { q: searchQuery = "" } = useSearch({ from: "/" });
 
-  const uploadFlow = useUploadFlow();
-
   const setSearchQuery = (value: string) => {
     navigate({ to: "/", search: { q: value || undefined } });
   };
@@ -206,15 +202,8 @@ export default function HomePage() {
           <>
             <HeroSection />
 
-            <input
-              ref={uploadFlow.fileInputRef}
-              type="file"
-              accept=".xml,.musicxml,.mxl"
-              onChange={uploadFlow.handleInputChange}
-              className="hidden"
-            />
-            <UploadButton
-              onClick={uploadFlow.handleUploadClick}
+            <HeroCta
+              onClick={() => navigate({ to: "/library" })}
               isAuthenticated={isAuthenticated}
             />
             <Divider />
@@ -229,14 +218,6 @@ export default function HomePage() {
           />
         )}
       </div>
-
-      <UploadModal
-        key={uploadFlow.selectedFile?.name ?? "closed"}
-        isOpen={uploadFlow.isModalOpen}
-        onClose={uploadFlow.closeModal}
-        file={uploadFlow.selectedFile}
-        initialTitle={uploadFlow.initialTitle}
-      />
     </Layout>
   );
 }
