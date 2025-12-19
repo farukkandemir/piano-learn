@@ -28,7 +28,7 @@ export default function SignupPage() {
     if (error) {
       toast.error(error.message);
     } else {
-      navigate({ to: "/" });
+      navigate({ to: "/library" });
     }
   };
 
