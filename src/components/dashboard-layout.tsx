@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import {
   Library,
@@ -35,6 +35,7 @@ const sidebarLinks = [
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { setTheme } = useTheme();
 
   return (
@@ -126,7 +127,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     </DropdownMenuSub>
 
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={signOut}>
+                    <DropdownMenuItem
+                      onClick={async () => {
+                        await signOut();
+                        navigate({ to: "/" });
+                      }}
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign out
                     </DropdownMenuItem>
