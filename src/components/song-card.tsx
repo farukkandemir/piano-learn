@@ -21,7 +21,7 @@ export function SongCard({ song }: { song: Song }) {
             </div>
           )}
         </div>
-        <div className="pt-3 space-y-1">
+        <div className="space-y-1">
           <h3 className="font-medium text-sm leading-tight">{song.title}</h3>
           <p className="text-xs text-muted-foreground">{song.composer}</p>
           <div className="flex items-center gap-2 pt-1">
