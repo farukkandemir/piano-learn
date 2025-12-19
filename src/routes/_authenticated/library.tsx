@@ -66,7 +66,7 @@ function LibraryPage() {
         </div>
       ) : (
         // Empty state - ghost grid
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {/* Upload card */}
           <button
             onClick={uploadFlow.handleUploadClick}
@@ -81,7 +81,7 @@ function LibraryPage() {
           </button>
 
           {/* Ghost placeholder cards */}
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
             <div
               key={i}
               className="aspect-4/3 rounded-lg border border-dashed border-border/40"
