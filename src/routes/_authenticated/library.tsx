@@ -36,8 +36,8 @@ function LibraryPage() {
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-muted-foreground">Loading...</span>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
               <SongCardSkeleton key={i} />
             ))}
           </div>
@@ -81,7 +81,7 @@ function LibraryPage() {
           </button>
 
           {/* Ghost placeholder cards */}
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div
               key={i}
               className="aspect-4/3 rounded-lg border border-dashed border-border/40"
