@@ -7,7 +7,7 @@ import type { Song } from "@/types/song";
 export function SongCard({ song }: { song: Song }) {
   return (
     <Link to="/play/$songId" params={{ songId: song.id }}>
-      <Card className="group overflow-hidden border-0 bg-transparent shadow-none">
+      <Card className="group overflow-hidden border-0 bg-transparent shadow-none pt-0">
         <div className="aspect-4/3 overflow-hidden rounded-lg bg-muted">
           {song.cover_url ? (
             <img

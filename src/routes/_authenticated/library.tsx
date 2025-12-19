@@ -32,12 +32,10 @@ function LibraryPage() {
 
       {isLoading ? (
         // Loading state
-        <div>
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <SongCardSkeleton key={i} />
-            ))}
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <SongCardSkeleton key={i} />
+          ))}
         </div>
       ) : hasSongs ? (
         // Has songs
