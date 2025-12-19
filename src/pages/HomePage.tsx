@@ -1,44 +1,18 @@
-import { useState, useRef, type ChangeEvent, useMemo } from "react";
+import { useMemo } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Upload, Music, ArrowRight, Search, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+
+import { Upload, Music, ArrowRight, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCommunitySongs, useUploadSong } from "@/queries/songs";
+import { useCommunitySongs } from "@/queries/songs";
 import type { Song } from "@/types/song";
 import { useAuth } from "@/context/auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import {
-  Controller,
-  useForm,
-  type Control,
-  type FieldErrors,
-  type UseFormRegister,
-} from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { uploadSchema, type UploadFormValues } from "@/lib/validations";
-
-const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
+import { useUploadFlow } from "@/hooks/use-upload-flow";
+import { UploadModal } from "@/components/upload-modal";
 
 function HeroSection() {
   return (
@@ -188,114 +162,6 @@ function CommunitySection({
   );
 }
 
-interface UploadModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: () => void;
-  isUploading: boolean;
-  errors: FieldErrors<UploadFormValues>;
-  register: UseFormRegister<UploadFormValues>;
-  control: Control<UploadFormValues>;
-}
-
-function UploadModal({
-  isOpen,
-  onOpenChange,
-  register,
-  errors,
-  onSave,
-  isUploading,
-  control,
-}: UploadModalProps) {
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add to your library</DialogTitle>
-          <DialogDescription>
-            Enter details about your sheet music before practicing.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label
-              htmlFor="title"
-              className={errors.title ? "text-destructive" : ""}
-            >
-              Title
-            </Label>
-            <Input
-              id="title"
-              {...register("title")}
-              className={errors.title ? "border-destructive" : ""}
-            />
-            {errors.title && (
-              <p className="text-xs text-destructive">{errors.title.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="composer"
-              className={errors.composer ? "text-destructive" : ""}
-            >
-              Composer
-            </Label>
-            <Input
-              id="composer"
-              placeholder="(e.g. Beethoven, Mozart, Bach)"
-              {...register("composer")}
-              className={errors.composer ? "border-destructive" : ""}
-            />
-            {errors.composer && (
-              <p className="text-xs text-destructive">
-                {errors.composer.message}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="difficulty">Difficulty</Label>
-            <Controller
-              name="difficulty"
-              control={control}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Beginner">Beginner</SelectItem>
-                    <SelectItem value="Intermediate">Intermediate</SelectItem>
-                    <SelectItem value="Advanced">Advanced</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={onSave} disabled={isUploading}>
-            {isUploading ? "Uploading..." : "Save & Play"}
-            {isUploading ? (
-              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-            ) : (
-              <ArrowRight className="ml-2 h-4 w-4" />
-            )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// =============================================================================
-// Main Component
-// =============================================================================
-
 function SearchView({
   query,
   songs,
@@ -345,29 +211,13 @@ function SearchView({
 export default function HomePage() {
   const navigate = useNavigate();
 
-  const { isAuthenticated, user } = useAuth();
-
-  const uploadSong = useUploadSong();
+  const { isAuthenticated } = useAuth();
 
   const { data: communitySongs, isLoading } = useCommunitySongs();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    control,
-    formState: { errors },
-  } = useForm<UploadFormValues>({
-    resolver: zodResolver(uploadSchema),
-    defaultValues: { title: "", composer: "", difficulty: "Beginner" },
-  });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const { q: searchQuery = "" } = useSearch({ from: "/" });
+
+  const uploadFlow = useUploadFlow();
 
   const setSearchQuery = (value: string) => {
     navigate({ to: "/", search: { q: value || undefined } });
@@ -387,63 +237,6 @@ export default function HomePage() {
         song.composer.toLowerCase().includes(searchQueryLower)
     );
   }, [searchQuery, communitySongs, isSearching]);
-
-  const validateFile = (file: File): boolean => {
-    const extension = "." + file.name.split(".").pop()?.toLowerCase();
-    return VALID_EXTENSIONS.includes(extension);
-  };
-
-  const handleFileSelect = async (file: File) => {
-    if (!validateFile(file)) {
-      toast.error(
-        `Invalid file type. Please upload ${VALID_EXTENSIONS.join(", ")} files.`
-      );
-      return;
-    }
-
-    try {
-      const filenameWithoutExt = file.name.replace(
-        /\.(xml|musicxml|mxl)$/i,
-        ""
-      );
-
-      setValue("title", filenameWithoutExt);
-      setSelectedFile(file);
-      setIsModalOpen(true);
-    } catch {
-      toast.error("Failed to read file. Please try again.");
-    }
-  };
-
-  const onSubmit = async (data: UploadFormValues) => {
-    if (!selectedFile) {
-      toast.error("Please select a file");
-      return;
-    }
-    // You need the original File object, not just content
-    uploadSong.mutate(
-      { ...data, file: selectedFile, userId: user?.id! },
-      {
-        onSuccess: (song) => {
-          toast.success("Song added to your library");
-          reset(); // Clear form
-          setIsModalOpen(false);
-          navigate({ to: "/play/$songId", params: { songId: song.id } });
-        },
-        onError: (error) => toast.error(error.message),
-      }
-    );
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFileSelect(file);
-    e.target.value = "";
-  };
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -470,14 +263,14 @@ export default function HomePage() {
             <HeroSection />
 
             <input
-              ref={fileInputRef}
+              ref={uploadFlow.fileInputRef}
               type="file"
               accept=".xml,.musicxml,.mxl"
-              onChange={handleInputChange}
+              onChange={uploadFlow.handleInputChange}
               className="hidden"
             />
             <UploadButton
-              onClick={handleUploadClick}
+              onClick={uploadFlow.handleUploadClick}
               isAuthenticated={isAuthenticated}
             />
             <Divider />
@@ -494,13 +287,11 @@ export default function HomePage() {
       </div>
 
       <UploadModal
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        register={register}
-        errors={errors}
-        onSave={handleSubmit(onSubmit)}
-        isUploading={uploadSong.isPending}
-        control={control}
+        key={uploadFlow.selectedFile?.name ?? "closed"}
+        isOpen={uploadFlow.isModalOpen}
+        onClose={uploadFlow.closeModal}
+        file={uploadFlow.selectedFile}
+        initialTitle={uploadFlow.initialTitle}
       />
     </Layout>
   );
