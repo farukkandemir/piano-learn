@@ -480,10 +480,6 @@ export default function HomePage() {
               onClick={handleUploadClick}
               isAuthenticated={isAuthenticated}
             />
-            <Button onClick={() => navigate({ to: "/library" })}>
-              Library
-            </Button>
-
             <Divider />
 
             <CommunitySection songs={communitySongs} isLoading={isLoading} />
