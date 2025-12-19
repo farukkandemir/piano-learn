@@ -64,6 +64,42 @@ export default function AboutPage() {
           </p>
         </section>
 
+        {/* Community ask */}
+        <section className="mb-20">
+          <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-8">
+            A small ask
+          </h2>
+          <p className="leading-relaxed mb-4">
+            When you upload sheets, please use accurate titles and composer
+            names. It helps everyone find what they're looking for.
+          </p>
+          <p className="text-muted-foreground leading-relaxed">
+            And let's keep things respectful. No spam, no copyrighted content
+            you don't have rights to share. Just music we can all enjoy
+            learning.
+          </p>
+        </section>
+
+        {/* Get in touch */}
+        <section className="mb-20">
+          <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-8">
+            Say hi
+          </h2>
+          <p className="leading-relaxed">
+            Got feedback, ideas, or just want to chat about piano stuff? Find me
+            on{" "}
+            <a
+              href="https://twitter.com/farukkand09"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-foreground transition-colors"
+            >
+              Twitter
+            </a>
+            .
+          </p>
+        </section>
+
         {/* Closing */}
         <section className="pt-8 border-t border-border/60">
           <p className="text-sm text-muted-foreground">
