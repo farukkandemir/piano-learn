@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   session: Session | null;
 
@@ -70,6 +70,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
   };
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider

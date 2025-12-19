@@ -1,10 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>piano.learn</title>
+
+    <script>
+      (function () {
+        const theme = localStorage.getItem("vite-ui-theme");
+        let isDark;
+
+        if (theme === "dark") {
+          isDark = true;
+        } else if (theme === "light") {
+          isDark = false;
+        } else {
+          isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        }
+
+        document.documentElement.classList.add(isDark ? "dark" : "light");
+        document.documentElement.style.backgroundColor = isDark
+          ? "#09090b"
+          : "#ffffff";
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
