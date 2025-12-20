@@ -28,9 +28,17 @@ const UserProfile = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          <div className="h-9 w-9 rounded-sm bg-muted flex items-center justify-center text-xs font-medium">
-            {user.email?.charAt(0).toUpperCase()}
-          </div>
+          {user.user_metadata?.avatar_url ? (
+            <img
+              src={user.user_metadata.avatar_url}
+              alt=""
+              className="h-7 w-7 rounded-full object-cover"
+            />
+          ) : (
+            <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+              {user.email?.charAt(0).toUpperCase()}
+            </div>
+          )}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
