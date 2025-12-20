@@ -168,3 +168,21 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Subtle dot grid background pattern */
+.bg-dot-grid {
+  background-image: radial-gradient(
+    circle,
+    oklch(0.5 0 0 / 0.15) 1px,
+    transparent 1px
+  );
+  background-size: 32px 32px;
+}
+
+.dark .bg-dot-grid {
+  background-image: radial-gradient(
+    circle,
+    oklch(1 0 0 / 0.08) 1px,
+    transparent 1px
+  );
+}

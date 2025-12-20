@@ -66,7 +66,7 @@ export function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background bg-dot-grid">
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <Link

@@ -13,14 +13,34 @@ import { SongCard, SongCardSkeleton } from "@/components/song-card";
 function HeroSection() {
   return (
     <section className="mb-8 text-center">
-      <h1 className="mb-3 text-5xl font-semibold tracking-tight">
-        Learn, play, share
+      {/* Quote - small, subtle, modern */}
+      <p className="mb-10 text-sm text-muted-foreground/60 tracking-wide">
+        <span className="text-primary/40">"</span>
+        The piano keys are black and white, but they sound like a million
+        colors.
+        <span className="text-primary/40">"</span>
+      </p>
+
+      {/* Main Tagline - concise */}
+      <h1 className="mb-3 text-4xl md:text-5xl font-semibold tracking-tight">
+        Practice piano, your way.
       </h1>
       <p className="text-muted-foreground max-w-md mx-auto">
-        A community-driven piano practice space. Discover sheets and start
-        playing.
+        Upload sheets. Connect your keyboard. Learn at your pace.
       </p>
     </section>
+  );
+}
+
+function StatsBadges() {
+  return (
+    <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+      <span>✦ Free forever</span>
+      <span className="text-border">·</span>
+      <span>Practice-focused</span>
+      <span className="text-border">·</span>
+      <span>Open community</span>
+    </div>
   );
 }
 
@@ -120,6 +140,11 @@ export default function HomePage() {
           onClick={() => navigate({ to: "/library" })}
           isAuthenticated={isAuthenticated}
         />
+
+        <div className="mb-12">
+          <StatsBadges />
+        </div>
+
         <Divider />
 
         <CommunitySection songs={communitySongs} isLoading={isLoading} />
