@@ -12,20 +12,22 @@ import { SongCard, SongCardSkeleton } from "@/components/song-card";
 
 function HeroSection() {
   return (
-    <section className="mb-8 text-center">
-      {/* Quote - small, subtle, modern */}
-      <p className="mb-10 text-sm text-muted-foreground/60 tracking-wide">
-        <span className="text-primary/40">"</span>
-        The piano keys are black and white, but they sound like a million
-        colors.
-        <span className="text-primary/40">"</span>
-      </p>
+    <section className="mb-10 text-center">
+      {/* Quote - subtle with decorative elements */}
+      <div className="mb-12 flex items-center justify-center gap-4">
+        <span className="h-px w-12 bg-primary/30" />
+        <p className="text-sm text-muted-foreground/70 tracking-wide italic">
+          "The piano keys are black and white, but they sound like a million
+          colors."
+        </p>
+        <span className="h-px w-12 bg-primary/30" />
+      </div>
 
       {/* Main Tagline - concise */}
-      <h1 className="mb-3 text-4xl md:text-5xl font-semibold tracking-tight">
-        Practice piano, your way.
+      <h1 className="mb-4 text-4xl md:text-5xl font-semibold tracking-tight">
+        Practice piano, <span className="text-primary">your way</span>.
       </h1>
-      <p className="text-muted-foreground max-w-md mx-auto">
+      <p className="text-muted-foreground max-w-md mx-auto text-lg">
         Upload sheets. Connect your keyboard. Learn at your pace.
       </p>
     </section>
@@ -34,11 +36,13 @@ function HeroSection() {
 
 function StatsBadges() {
   return (
-    <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-      <span>✦ Free forever</span>
-      <span className="text-border">·</span>
+    <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+      <span>
+        <span className="text-primary">✦</span> Free forever
+      </span>
+      <span className="text-primary/30">·</span>
       <span>Practice-focused</span>
-      <span className="text-border">·</span>
+      <span className="text-primary/30">·</span>
       <span>Open community</span>
     </div>
   );
@@ -53,23 +57,24 @@ function HeroCta({
 }) {
   if (!isAuthenticated) {
     return (
-      <section className="mb-8 flex justify-center">
-        <Link
-          to="/login"
-          className="group flex items-center gap-3 rounded-lg bg-foreground px-5 py-3 text-background hover:bg-foreground/90"
-        >
-          <Upload className="h-4 w-4" />
-          <span className="text-sm font-medium">Sign in to upload</span>
-          <ArrowRight className="h-4 w-4 opacity-60" />
-        </Link>
+      <section className="mb-10 flex justify-center gap-4">
+        <Button asChild size="lg">
+          <Link to="/login">
+            <Upload className="h-4 w-4" />
+            Let's Play
+          </Link>
+        </Button>
+        <Button asChild variant="outline" size="lg">
+          <Link to="/about">Learn More</Link>
+        </Button>
       </section>
     );
   }
   return (
-    <section className="mb-8 flex justify-center">
-      <Button onClick={onClick} variant="default">
+    <section className="mb-10 flex justify-center">
+      <Button onClick={onClick} size="lg">
         <Library className="h-4 w-4" />
-        <span className="text-sm font-medium">My Library</span>
+        My Library
         <ArrowRight className="h-4 w-4 opacity-60" />
       </Button>
     </section>
