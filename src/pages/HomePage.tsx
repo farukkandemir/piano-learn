@@ -13,7 +13,7 @@ import { SongCard, SongCardSkeleton } from "@/components/song-card";
 function HeroSection() {
   return (
     <section className="mb-8 text-center">
-      <h1 className="mb-3 text-4xl font-semibold tracking-tight">
+      <h1 className="mb-3 text-5xl font-semibold tracking-tight">
         Learn, play, share
       </h1>
       <p className="text-muted-foreground max-w-md mx-auto">
@@ -47,14 +47,11 @@ function HeroCta({
   }
   return (
     <section className="mb-8 flex justify-center">
-      <button
-        onClick={onClick}
-        className="group flex items-center gap-3 rounded-lg bg-foreground px-5 py-3 text-background hover:bg-foreground/90"
-      >
+      <Button onClick={onClick} variant="default">
         <Library className="h-4 w-4" />
         <span className="text-sm font-medium">My Library</span>
         <ArrowRight className="h-4 w-4 opacity-60" />
-      </button>
+      </Button>
     </section>
   );
 }
