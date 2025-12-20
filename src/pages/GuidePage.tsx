@@ -9,16 +9,18 @@ interface PlatformProps {
 
 function Platform({ name, connection, steps, note }: PlatformProps) {
   return (
-    <div className="py-8 border-b border-border/60 last:border-0">
+    <div className="py-8 border-b border-primary/20 last:border-0">
       <div className="flex items-baseline justify-between mb-6">
         <h3 className="font-medium">{name}</h3>
-        <span className="text-sm text-muted-foreground">{connection}</span>
+        <span className="text-sm text-primary/70 font-medium">
+          {connection}
+        </span>
       </div>
 
       <ol className="space-y-3 mb-6">
         {steps.map((step, index) => (
           <li key={index} className="flex gap-4 text-sm">
-            <span className="text-muted-foreground/60 tabular-nums">
+            <span className="text-primary/50 tabular-nums font-medium">
               {index + 1}.
             </span>
             <span className="text-muted-foreground">{step}</span>
@@ -68,13 +70,14 @@ export default function GuidePage() {
   return (
     <Layout>
       <div className="mx-auto max-w-2xl px-6 py-20">
-        {/* Header */}
-        <section className="mb-12">
-          <p className="text-muted-foreground mb-6 text-sm uppercase tracking-wider">
+        {/* Header - with subtle card background */}
+        <section className="mb-12 p-6 rounded-lg bg-secondary/30">
+          <p className="text-primary mb-6 text-sm uppercase tracking-wider font-medium">
             Getting started
           </p>
           <h1 className="text-xl font-medium leading-relaxed">
-            Connect your MIDI keyboard and start practicing in a few minutes.
+            Connect your MIDI keyboard and start practicing in{" "}
+            <span className="text-primary">a few minutes</span>.
           </h1>
         </section>
 
@@ -85,27 +88,27 @@ export default function GuidePage() {
           ))}
         </section>
 
-        {/* Troubleshooting */}
-        <section>
-          <h2 className="text-sm uppercase tracking-wider text-muted-foreground mb-8">
+        {/* Troubleshooting - styled card */}
+        <section className="p-6 rounded-lg bg-accent/30">
+          <h2 className="text-sm uppercase tracking-wider text-primary mb-8 font-medium">
             Common issues
           </h2>
           <div className="space-y-6 text-sm">
-            <div>
+            <div className="border-l-2 border-primary/50 pl-4">
               <p className="font-medium mb-1">Keyboard not showing up?</p>
               <p className="text-muted-foreground">
                 Refresh the page or try a different USB port. Make sure no other
                 app is using the MIDI device.
               </p>
             </div>
-            <div>
+            <div className="border-l-2 border-primary/50 pl-4">
               <p className="font-medium mb-1">Laggy response?</p>
               <p className="text-muted-foreground">
                 Wired connections are faster. Close other browser tabs to free
                 up resources.
               </p>
             </div>
-            <div>
+            <div className="border-l-2 border-primary/50 pl-4">
               <p className="font-medium mb-1">Which browser works best?</p>
               <p className="text-muted-foreground">
                 Chrome and Edge have the best Web MIDI support. Safari is more
