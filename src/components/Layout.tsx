@@ -27,7 +27,7 @@ const UserProfile = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="ml-3 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <div className="h-9 w-9 rounded-sm bg-muted flex items-center justify-center text-xs font-medium">
             {user.email?.charAt(0).toUpperCase()}
           </div>
@@ -68,8 +68,8 @@ export function Layout({ children }: LayoutProps) {
             piano.learn
           </Link>
 
-          <div className="flex items-center gap-3">
-            <nav className="flex items-center gap-1">
+          <div className="flex items-center gap-4">
+            <nav className="flex items-center gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -91,7 +91,7 @@ export function Layout({ children }: LayoutProps) {
             ) : (
               <Link
                 to="/login"
-                className="ml-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Sign in
               </Link>
