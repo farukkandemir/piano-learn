@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import SheetMusic, {
   type NoteInfo,
   type ProgressInfo,
+  type SheetMusicHandle,
 } from "../components/SheetMusic";
 import Piano from "../components/Piano";
 import MidiStatus from "../components/MidiStatus";
@@ -144,6 +145,7 @@ export default function PlayPage() {
   });
   const hasAdvancedRef = useRef(false);
   const checkAndAdvanceRef = useRef<(keys: Set<number>) => void>(() => {});
+  const sheetMusicRef = useRef<SheetMusicHandle>(null);
 
   const filteredNotes = useMemo(() => {
     if (handMode === "both") return currentNotes;
@@ -224,7 +226,7 @@ export default function PlayPage() {
       if (allPressed) {
         hasAdvancedRef.current = true;
         setTimeout(() => {
-          (window as any).osmdControls?.next();
+          sheetMusicRef.current?.next();
         }, 100);
       }
     },
@@ -237,7 +239,7 @@ export default function PlayPage() {
 
     // If we have notes from the sheet but none for our selected hand, instantly jump
     if (currentNotes.length > 0 && filteredNotes.length === 0) {
-      (window as any).osmdControls?.nextForHand(handMode);
+      sheetMusicRef.current?.nextForHand(handMode);
     }
   }, [currentNotes, filteredNotes, handMode]);
 
@@ -296,15 +298,15 @@ export default function PlayPage() {
   }, [checkAndAdvance]);
 
   const handleNext = () => {
-    (window as any).osmdControls?.next();
+    sheetMusicRef.current?.next();
   };
 
   const handlePrevious = () => {
-    (window as any).osmdControls?.previous();
+    sheetMusicRef.current?.previous();
   };
 
   const handleReset = () => {
-    (window as any).osmdControls?.reset();
+    sheetMusicRef.current?.reset();
     setPressedKeys(new Set());
     audioEngine.stopAllNotes();
   };
@@ -443,6 +445,7 @@ export default function PlayPage() {
       {/* Sheet Music Area */}
       <div className="flex-1 p-4 overflow-hidden min-h-0">
         <SheetMusic
+          ref={sheetMusicRef}
           xmlContent={songContent}
           onNotesChange={handleNotesChange}
           onProgressChange={handleProgressChange}
