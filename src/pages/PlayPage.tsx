@@ -204,9 +204,15 @@ export default function PlayPage() {
 
       if (allPressed) {
         hasAdvancedRef.current = true;
+
+        // Calculate wait time based on note duration and tempo
+        const bpm = 120;
+        const noteDuration = filteredNotes[0]?.duration ?? 0.25; // Default to quarter note
+        const waitMs = noteDuration * (60 / bpm) * 1000;
+
         setTimeout(() => {
           sheetMusicRef.current?.next();
-        }, 100);
+        }, waitMs);
       }
     },
     [filteredNotes]
@@ -277,9 +283,15 @@ export default function PlayPage() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      audioEngine.stopAllNotes();
     };
   }, [checkAndAdvance]);
+
+  // Stop all notes on unmount
+  useEffect(() => {
+    return () => {
+      audioEngine.stopAllNotes(); // ✅ Only on component unmount
+    };
+  }, []);
 
   const handleNext = () => {
     sheetMusicRef.current?.next();
