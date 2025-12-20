@@ -235,12 +235,9 @@ export default function PlayPage() {
   useEffect(() => {
     if (handMode === "both") return; // No auto-skip in "both" mode
 
-    // If we have notes from the sheet but none for our selected hand, auto-skip
+    // If we have notes from the sheet but none for our selected hand, instantly jump
     if (currentNotes.length > 0 && filteredNotes.length === 0) {
-      const timer = setTimeout(() => {
-        (window as any).osmdControls?.next();
-      }, 50); // Small delay for smooth transition
-      return () => clearTimeout(timer);
+      (window as any).osmdControls?.nextForHand(handMode);
     }
   }, [currentNotes, filteredNotes, handMode]);
 

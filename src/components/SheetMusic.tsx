@@ -190,13 +190,42 @@ export default function SheetMusic({
     highlightAndExtractNotes();
   }, [highlightAndExtractNotes]);
 
+  // Jump directly to the next note for a specific hand (no intermediate renders)
+  const nextForHand = useCallback(
+    (targetHand: "left" | "right") => {
+      if (!osmdRef.current?.cursor) return;
+
+      const cursor = osmdRef.current.cursor;
+
+      // Keep advancing until we find notes for our hand (or reach the end)
+      while (!cursor.Iterator.EndReached) {
+        cursor.next();
+
+        const notes = cursor.GNotesUnderCursor();
+        const hasNotesForHand = notes.some((gNote) => {
+          const sourceNote = gNote.sourceNote;
+          if (!sourceNote || sourceNote.isRest()) return false;
+          const staffIndex =
+            sourceNote.ParentStaffEntry?.ParentStaff?.idInMusicSheet ?? 0;
+          const hand = staffIndex === 0 ? "right" : "left";
+          return hand === targetHand;
+        });
+
+        if (hasNotesForHand) break;
+      }
+
+      highlightAndExtractNotes(); // Only render ONCE at the final position
+    },
+    [highlightAndExtractNotes]
+  );
+
   // Expose navigation methods via window
   useEffect(() => {
-    (window as any).osmdControls = { next, previous, reset };
+    (window as any).osmdControls = { next, previous, reset, nextForHand };
     return () => {
       delete (window as any).osmdControls;
     };
-  }, [next, previous, reset]);
+  }, [next, previous, reset, nextForHand]);
 
   if (error) {
     return (
