@@ -37,6 +37,7 @@ export interface SheetMusicHandle {
   previous: () => void;
   reset: () => void;
   nextForHand: (hand: "left" | "right") => void;
+  nextToPlayableNote: () => boolean; // Returns false if end reached
 }
 
 // Colors for highlighting
@@ -232,6 +233,32 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
       [highlightAndExtractNotes]
     );
 
+    // Skip empty positions (bar lines, repeats, etc.) to find next playable note
+    const nextToPlayableNote = useCallback((): boolean => {
+      if (!osmdRef.current?.cursor) return false;
+
+      const cursor = osmdRef.current.cursor;
+
+      // Keep advancing until we find any playable notes (or reach the end)
+      while (!cursor.Iterator.EndReached) {
+        cursor.next();
+
+        const notes = cursor.GNotesUnderCursor();
+        const hasPlayableNotes = notes.some((gNote) => {
+          return gNote.sourceNote && !gNote.sourceNote.isRest();
+        });
+
+        if (hasPlayableNotes) {
+          highlightAndExtractNotes();
+          return true;
+        }
+      }
+
+      // Reached end of piece
+      highlightAndExtractNotes();
+      return false;
+    }, [highlightAndExtractNotes]);
+
     // Expose navigation methods via ref (type-safe, React-idiomatic)
     useImperativeHandle(
       ref,
@@ -240,8 +267,9 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         previous,
         reset,
         nextForHand,
+        nextToPlayableNote,
       }),
-      [next, previous, reset, nextForHand]
+      [next, previous, reset, nextForHand, nextToPlayableNote]
     );
 
     if (error) {

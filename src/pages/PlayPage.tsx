@@ -233,12 +233,17 @@ export default function PlayPage() {
     [filteredNotes]
   );
 
-  // Auto-skip when no notes for selected hand mode
+  // Auto-skip positions with no relevant notes
+  // Handles: empty positions (bar lines, repeats) AND single-hand mode
   useEffect(() => {
-    if (handMode === "both") return; // No auto-skip in "both" mode
+    // No notes at all = empty position (bar line, repeat sign, etc.)
+    if (currentNotes.length === 0) {
+      sheetMusicRef.current?.nextToPlayableNote();
+      return;
+    }
 
-    // If we have notes from the sheet but none for our selected hand, instantly jump
-    if (currentNotes.length > 0 && filteredNotes.length === 0) {
+    // In single-hand mode, skip positions with only other-hand notes
+    if (handMode !== "both" && filteredNotes.length === 0) {
       sheetMusicRef.current?.nextForHand(handMode);
     }
   }, [currentNotes, filteredNotes, handMode]);
