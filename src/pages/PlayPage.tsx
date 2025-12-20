@@ -27,94 +27,73 @@ import { cn } from "@/lib/utils";
 type HandMode = "left" | "right" | "both";
 
 // ============================================================
-// ERGONOMIC KEYBOARD TO PIANO MAPPING
+// SIMPLE CHROMATIC KEYBOARD MAPPING
 // ============================================================
 //
-// This layout mimics real piano hand positions:
-// - LEFT HAND (Q-U row): Bass notes C3-B3 (MIDI 48-59)
-// - RIGHT HAND (I-' row): Treble notes C4-B4 (MIDI 60-71)
-// - Black keys are on the NUMBER ROW, directly above their white keys
+// Each row = one chromatic octave, left to right = low to high
 //
 // Visual Layout:
 //
-//   LEFT HAND (C3-B3)                RIGHT HAND (C4-B4)
-//   ┌─────────────────────┐          ┌─────────────────────┐
-//   │ [2][3]   [5][6][7]  │          │ [9][0]   [-][=][⌫]  │  ← Black keys
-//   │ [Q][W][E][R][T][Y][U]│          │ [I][O][P][ [ ][ ] ][;][']│  ← White keys
-//   └─────────────────────┘          └─────────────────────┘
-//     C  D  E  F  G  A  B              C  D  E  F  G  A  B
+//   Number row: C3  → B3  (MIDI 48-59)  - Lower octave
+//   Q row:      C4  → B4  (MIDI 60-71)  - Middle octave (includes Middle C)
+//   A row:      C5  → A#5 (MIDI 72-82)  - Higher octave
+//   Z row:      C2  → A2  (MIDI 36-45)  - Bass octave
 //
 // ============================================================
 
 const KEYBOARD_MAP: Record<string, number> = {
-  // ═══════════════════════════════════════════════════════════
-  // LEFT HAND - C3 to B3 (MIDI 48-59) - Bass/accompaniment
-  // ═══════════════════════════════════════════════════════════
+  // Number row: C3 to B3 (one full chromatic octave)
+  "1": 48, // C3
+  "2": 49, // C#3
+  "3": 50, // D3
+  "4": 51, // D#3
+  "5": 52, // E3
+  "6": 53, // F3
+  "7": 54, // F#3
+  "8": 55, // G3
+  "9": 56, // G#3
+  "0": 57, // A3
+  "-": 58, // A#3
+  "=": 59, // B3
 
-  // White keys (QWERTY row - left side)
-  q: 48, // C3
-  w: 50, // D3
-  e: 52, // E3
-  r: 53, // F3
-  t: 55, // G3
-  y: 57, // A3
-  u: 59, // B3
+  // Q row: C4 to B4 (Middle C octave)
+  q: 60, // C4 (Middle C!)
+  w: 61, // C#4
+  e: 62, // D4
+  r: 63, // D#4
+  t: 64, // E4
+  y: 65, // F4
+  u: 66, // F#4
+  i: 67, // G4
+  o: 68, // G#4
+  p: 69, // A4
+  "[": 70, // A#4
+  "]": 71, // B4
 
-  // Black keys (Number row - above white keys)
-  "2": 49, // C#3 (above Q-W)
-  "3": 51, // D#3 (above W-E)
-  "5": 54, // F#3 (above R-T)
-  "6": 56, // G#3 (above T-Y)
-  "7": 58, // A#3 (above Y-U)
+  // A row: C5 to A#5 (higher octave)
+  a: 72, // C5
+  s: 73, // C#5
+  d: 74, // D5
+  f: 75, // D#5
+  g: 76, // E5
+  h: 77, // F5
+  j: 78, // F#5
+  k: 79, // G5
+  l: 80, // G#5
+  ";": 81, // A5
+  "'": 82, // A#5
 
-  // ═══════════════════════════════════════════════════════════
-  // RIGHT HAND - C4 to B4 (MIDI 60-71) - Melody (includes Middle C)
-  // ═══════════════════════════════════════════════════════════
-
-  // White keys (right side of keyboard)
-  i: 60, // C4 (Middle C!)
-  o: 62, // D4
-  p: 64, // E4
-  "[": 65, // F4
-  "]": 67, // G4
-  ";": 69, // A4 (semicolon)
-  "'": 71, // B4 (apostrophe)
-
-  // Black keys (Number row - right side, above white keys)
-  "9": 61, // C#4 (above I-O)
-  "0": 63, // D#4 (above O-P)
-  "-": 66, // F#4 (above [-])
-  "=": 68, // G#4 (above ]-;)
-  Backspace: 70, // A#4 (above ;-')
-
-  // ═══════════════════════════════════════════════════════════
-  // EXTENDED RANGE - Lower octave (for advanced users)
-  // Using bottom row (Z-M) for C2-B2
-  // ═══════════════════════════════════════════════════════════
-
+  // Z row: C2 to A2 (bass octave)
   z: 36, // C2
-  x: 38, // D2
-  c: 40, // E2
-  v: 41, // F2
-  b: 43, // G2
-  n: 45, // A2
-  m: 47, // B2
-
-  // Black keys for C2 octave (A-S-D row)
-  s: 37, // C#2
-  d: 39, // D#2
-  g: 42, // F#2
-  h: 44, // G#2
-  j: 46, // A#2
-
-  // ═══════════════════════════════════════════════════════════
-  // EXTENDED RANGE - Higher octave (for advanced users)
-  // Using remaining keys for C5-E5
-  // ═══════════════════════════════════════════════════════════
-
-  "1": 72, // C5
-  "4": 74, // D5
-  "8": 76, // E5
+  x: 37, // C#2
+  c: 38, // D2
+  v: 39, // D#2
+  b: 40, // E2
+  n: 41, // F2
+  m: 42, // F#2
+  ",": 43, // G2
+  ".": 44, // G#2
+  "/": 45, // A2
 };
 
 export default function PlayPage() {
