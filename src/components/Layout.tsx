@@ -111,6 +111,38 @@ export function Layout({ children }: LayoutProps) {
       </header>
 
       <main>{children}</main>
+
+      <footer className="border-t border-border/40 mt-20">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <Link
+                to="/about"
+                className="hover:text-foreground transition-colors"
+              >
+                About
+              </Link>
+              <Link
+                to="/guide"
+                className="hover:text-foreground transition-colors"
+              >
+                Guide
+              </Link>
+              <a
+                href="https://twitter.com/farukkand09"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                Twitter
+              </a>
+            </div>
+            <p className="text-sm text-muted-foreground/60">
+              Built by a beginner, for beginners.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
