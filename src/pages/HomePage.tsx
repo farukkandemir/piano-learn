@@ -1,10 +1,9 @@
-import { useMemo } from "react";
-import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
 
-import { Upload, ArrowRight, Search, Library } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Upload, ArrowRight, Library } from "lucide-react";
 import { useCommunitySongs } from "@/queries/songs";
 import type { Song } from "@/types/song";
 import { useAuth } from "@/context/auth";
@@ -88,63 +87,21 @@ function CommunitySection({
     <section className="mt-[5%]">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold">Community Favorites</h2>
-        <Button variant="ghost" size="sm" className="text-muted-foreground">
+        <Button
+          variant="link"
+          size="sm"
+          className="text-muted-foreground cursor-pointer"
+        >
           Explore more
           <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, index) => (
               <SongCardSkeleton key={index} />
             ))
           : songs?.map((song) => <SongCard key={song.id} song={song} />)}
-      </div>
-    </section>
-  );
-}
-
-function SearchView({
-  query,
-  songs,
-  onClearSearch,
-}: {
-  query: string;
-  songs: Song[];
-  onClearSearch: () => void;
-}) {
-  if (songs.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <Search className="h-4 w-4 text-muted-foreground/50 mb-4" />
-        <p className="text-sm text-muted-foreground mb-1">No results for</p>
-        <p className="text-sm font-medium mb-4">"{query}"</p>
-        <Button variant="ghost" size="sm" onClick={onClearSearch}>
-          Clear search
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <section>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold">
-          {songs.length} result{songs.length !== 1 ? "s" : ""} for "{query}"
-        </h2>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground"
-          onClick={onClearSearch}
-        >
-          Clear search
-        </Button>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {songs.map((song) => (
-          <SongCard key={song.id} song={song} />
-        ))}
       </div>
     </section>
   );
@@ -157,66 +114,18 @@ export default function HomePage() {
 
   const { data: communitySongs, isLoading } = useCommunitySongs();
 
-  const { q: searchQuery = "" } = useSearch({ from: "/" });
-
-  const setSearchQuery = (value: string) => {
-    navigate({ to: "/", search: { q: value || undefined } });
-  };
-
-  const isSearching = searchQuery.trim().length > 0;
-
-  const filteredSongs = useMemo(() => {
-    if (!communitySongs) return [];
-
-    if (!isSearching) return communitySongs;
-
-    const searchQueryLower = searchQuery.toLowerCase();
-    return communitySongs.filter(
-      (song) =>
-        song.title.toLowerCase().includes(searchQueryLower) ||
-        song.composer.toLowerCase().includes(searchQueryLower)
-    );
-  }, [searchQuery, communitySongs, isSearching]);
-
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-  };
-
-  const handleClearSearch = () => {
-    setSearchQuery("");
-  };
-
   return (
-    <Layout
-      showSearch
-      searchQuery={searchQuery}
-      onSearchChange={handleSearchChange}
-    >
-      <div
-        className={cn(
-          "mx-auto max-w-6xl px-6 py-12",
-          isSearching ? "mt-0" : "mt-[10%]"
-        )}
-      >
-        {!isSearching ? (
-          <>
-            <HeroSection />
+    <Layout>
+      <div className="mx-auto max-w-6xl px-6 py-12 mt-[10%]">
+        <HeroSection />
 
-            <HeroCta
-              onClick={() => navigate({ to: "/library" })}
-              isAuthenticated={isAuthenticated}
-            />
-            <Divider />
+        <HeroCta
+          onClick={() => navigate({ to: "/library" })}
+          isAuthenticated={isAuthenticated}
+        />
+        <Divider />
 
-            <CommunitySection songs={communitySongs} isLoading={isLoading} />
-          </>
-        ) : (
-          <SearchView
-            query={searchQuery}
-            songs={filteredSongs}
-            onClearSearch={handleClearSearch}
-          />
-        )}
+        <CommunitySection songs={communitySongs} isLoading={isLoading} />
       </div>
     </Layout>
   );

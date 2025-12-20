@@ -1,7 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Input } from "@/components/ui/input";
-import { LogOut, Search } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth";
 import {
@@ -16,9 +15,6 @@ import type { User } from "@supabase/supabase-js";
 
 interface LayoutProps {
   children: React.ReactNode;
-  showSearch?: boolean;
-  searchQuery?: string;
-  onSearchChange?: (value: string) => void;
 }
 
 const UserProfile = ({
@@ -51,18 +47,12 @@ const UserProfile = ({
   );
 };
 
-export function Layout({
-  children,
-  showSearch = false,
-  searchQuery = "",
-  onSearchChange,
-}: LayoutProps) {
+export function Layout({ children }: LayoutProps) {
   const location = useLocation();
 
   const { user, signOut } = useAuth();
 
   const navLinks = [
-    { href: "/", label: "Home" },
     { href: "/about", label: "About" },
     { href: "/guide", label: "Guide" },
   ];
@@ -78,20 +68,7 @@ export function Layout({
             piano.learn
           </Link>
 
-          {showSearch && onSearchChange && (
-            <div className="relative max-w-xs flex-1 mx-8">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                type="text"
-                placeholder="Search songs..."
-                className="h-9 w-full rounded-lg border-0 bg-muted/50 pl-9 pr-4 text-sm placeholder:text-muted-foreground/60 focus:bg-muted focus:outline-none"
-              />
-            </div>
-          )}
-
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-3">
             <nav className="flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
