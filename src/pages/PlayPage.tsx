@@ -2,22 +2,13 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import SheetMusic, {
   type NoteInfo,
-  type ProgressInfo,
   type SheetMusicHandle,
 } from "../components/SheetMusic";
 import Piano from "../components/Piano";
 import MidiStatus from "../components/MidiStatus";
 import { audioEngine } from "../utils/audioEngine";
 import { useMidi } from "../hooks/useMidi";
-import {
-  ArrowLeft,
-  RotateCcw,
-  ChevronLeft,
-  ChevronRight,
-  VolumeX,
-  Volume2,
-  Hand,
-} from "lucide-react";
+import { ArrowLeft, RotateCcw, VolumeX, Volume2, Hand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useSong, useSongContent } from "@/queries/songs";
@@ -118,10 +109,6 @@ export default function PlayPage() {
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState<ProgressInfo>({
-    currentMeasure: 1,
-    totalMeasures: 1,
-  });
   const hasAdvancedRef = useRef(false);
   const checkAndAdvanceRef = useRef<(keys: Set<number>) => void>(() => {});
   const sheetMusicRef = useRef<SheetMusicHandle>(null);
@@ -186,10 +173,6 @@ export default function PlayPage() {
   const handleNotesChange = useCallback((notes: NoteInfo[]) => {
     setCurrentNotes(notes);
     hasAdvancedRef.current = false;
-  }, []);
-
-  const handleProgressChange = useCallback((newProgress: ProgressInfo) => {
-    setProgress(newProgress);
   }, []);
 
   // Check if all required notes are currently pressed
@@ -292,14 +275,6 @@ export default function PlayPage() {
       audioEngine.stopAllNotes(); // ✅ Only on component unmount
     };
   }, []);
-
-  const handleNext = () => {
-    sheetMusicRef.current?.next();
-  };
-
-  const handlePrevious = () => {
-    sheetMusicRef.current?.previous();
-  };
 
   const handleReset = () => {
     sheetMusicRef.current?.reset();
@@ -444,44 +419,7 @@ export default function PlayPage() {
           ref={sheetMusicRef}
           xmlContent={songContent}
           onNotesChange={handleNotesChange}
-          onProgressChange={handleProgressChange}
         />
-      </div>
-
-      {/* Bottom Controls - Option A style: Controls near the piano */}
-      <div className="px-4 py-2 bg-muted/50 border-t border-border/40">
-        <div className="flex items-center justify-center gap-4">
-          <Button
-            onClick={handlePrevious}
-            variant="outline"
-            size="sm"
-            className="gap-1"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Prev</span>
-          </Button>
-
-          {/* Measure indicator */}
-          <div className="flex items-center gap-2 min-w-[120px] justify-center">
-            <span className="text-sm text-muted-foreground">Measure</span>
-            <span className="text-sm font-medium tabular-nums">
-              {progress.currentMeasure}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              of {progress.totalMeasures}
-            </span>
-          </div>
-
-          <Button
-            onClick={handleNext}
-            variant="outline"
-            size="sm"
-            className="gap-1"
-          >
-            <span className="hidden sm:inline">Next</span>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
 
       {/* Piano Area */}
