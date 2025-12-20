@@ -133,6 +133,7 @@ export default function SheetMusic({
           drawPartAbbreviations: false,
           drawingParameters: "compact",
           coloringEnabled: true,
+          colorStemsLikeNoteheads: true,
         });
 
         osmdRef.current = osmd;
