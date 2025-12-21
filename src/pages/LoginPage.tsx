@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/context/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import type { LoginFormValues } from "@/lib/validations";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const router = useRouter();
   const { signIn, signInWithGoogle } = useAuth();
 
   const {
@@ -29,6 +30,7 @@ export default function LoginPage() {
       toast.error(error.message);
     } else {
       toast.success("Welcome back!");
+      await router.invalidate();
       navigate({ to: "/library" });
     }
   };
