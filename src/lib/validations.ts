@@ -26,6 +26,16 @@ export const uploadSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   composer: z.string().min(1, "Composer is required").max(100),
   difficulty: z.enum(["Beginner", "Intermediate", "Advanced"]),
+  category: z.enum([
+    "classical",
+    "modern",
+    "pop",
+    "jazz",
+    "film_tv",
+    "video_game",
+    "traditional",
+    "other",
+  ]),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

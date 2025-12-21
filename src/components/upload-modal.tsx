@@ -26,6 +26,7 @@ import {
 import { uploadSchema, type UploadFormValues } from "@/lib/validations";
 import { useUploadSong } from "@/queries/songs";
 import { useAuth } from "@/context/auth";
+import { SONG_CATEGORIES, CATEGORY_LABELS } from "@/types/song";
 import type { Song } from "@/types/song";
 
 interface UploadModalProps {
@@ -58,6 +59,7 @@ export function UploadModal({
       title: initialTitle,
       composer: "",
       difficulty: "Beginner",
+      category: "classical",
     },
   });
 
@@ -147,6 +149,28 @@ export function UploadModal({
                     <SelectItem value="Beginner">Beginner</SelectItem>
                     <SelectItem value="Intermediate">Intermediate</SelectItem>
                     <SelectItem value="Advanced">Advanced</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Controller
+              name="category"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SONG_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {CATEGORY_LABELS[cat]}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}
