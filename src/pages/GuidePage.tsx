@@ -39,10 +39,10 @@ const platforms: PlatformProps[] = [
     connection: "USB cable",
     steps: [
       "Connect your MIDI keyboard to your computer with a USB cable.",
-      "Open the app and go to the play page.",
+      "Open the app in Chrome or Edge and go to the play page.",
       "Your keyboard should appear automatically.",
     ],
-    note: "Bluetooth MIDI isn't supported on Windows browsers. You'll need a cable.",
+    note: "Bluetooth MIDI requires experimental browser flags on Windows. USB is the reliable choice.",
   },
   {
     name: "macOS",
@@ -50,19 +50,19 @@ const platforms: PlatformProps[] = [
     steps: [
       "For USB: Just plug in your keyboard.",
       "For Bluetooth: Open Audio MIDI Setup → Show MIDI Studio → Bluetooth.",
-      "Pair your keyboard and open the app.",
+      "Pair your keyboard and open the app in Chrome or Safari.",
     ],
     note: "macOS has native MIDI support for both wired and wireless connections.",
   },
   {
     name: "iOS / iPadOS",
-    connection: "Bluetooth",
+    connection: "USB cable + special browser",
     steps: [
-      "Put your keyboard in Bluetooth pairing mode.",
-      "Go to Settings → Bluetooth and connect.",
-      "Open Safari and start playing.",
+      "Download the 'Web MIDI Browser' app from the App Store.",
+      "Connect your keyboard via USB (with a Lightning or USB-C adapter).",
+      "Open this app's URL in the Web MIDI Browser, not Safari.",
     ],
-    note: "No cable needed. iOS handles Bluetooth MIDI natively.",
+    note: "Safari doesn't support Web MIDI. The Web MIDI Browser app is currently the only workaround on iOS.",
   },
 ];
 
@@ -75,10 +75,15 @@ export default function GuidePage() {
           <p className="text-primary mb-6 text-sm uppercase tracking-wider font-medium">
             Getting started
           </p>
-          <h1 className="text-xl font-medium leading-relaxed">
+          <h1 className="text-xl font-medium leading-relaxed mb-6">
             Connect your MIDI keyboard and start practicing in{" "}
             <span className="text-primary">a few minutes</span>.
           </h1>
+          <p className="text-sm text-muted-foreground/80">
+            Honestly, MIDI in browsers is a bit of a mess depending on your
+            device. I've tried to figure out what actually works but if you've
+            cracked a better setup, please let me know!
+          </p>
         </section>
 
         {/* Platforms */}
