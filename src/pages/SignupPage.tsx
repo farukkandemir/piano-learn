@@ -28,6 +28,7 @@ export default function SignupPage() {
     if (error) {
       toast.error(error.message);
     } else {
+      toast.success("Account created successfully!");
       navigate({ to: "/library" });
     }
   };
