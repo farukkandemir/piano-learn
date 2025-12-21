@@ -25,7 +25,7 @@ function LibraryPage() {
       <input
         ref={uploadFlow.fileInputRef}
         type="file"
-        accept=".xml,.musicxml,.mxl"
+        accept=".xml,.musicxml"
         onChange={uploadFlow.handleInputChange}
         className="hidden"
       />

@@ -1,7 +1,7 @@
 import { useState, useRef, type ChangeEvent } from "react";
 import { toast } from "sonner";
 
-const VALID_EXTENSIONS = [".xml", ".musicxml", ".mxl"];
+const VALID_EXTENSIONS = [".xml", ".musicxml"];
 
 export function useUploadFlow() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -10,7 +10,7 @@ export function useUploadFlow() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const initialTitle = selectedFile
-    ? selectedFile.name.replace(/\.(xml|musicxml|mxl)$/i, "")
+    ? selectedFile.name.replace(/\.(xml|musicxml)$/i, "")
     : "";
 
   const validateFile = (file: File): boolean => {
