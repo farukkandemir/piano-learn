@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Music } from "lucide-react";
-import { CATEGORY_LABELS } from "@/types/song";
+import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "@/types/song";
 import type { Song } from "@/types/song";
 
 export function SongCard({ song }: { song: Song }) {
@@ -27,7 +27,7 @@ export function SongCard({ song }: { song: Song }) {
           <p className="text-xs text-muted-foreground">{song.composer}</p>
           <div className="flex items-center gap-2 pt-1">
             <span className="text-xs text-muted-foreground/70">
-              {song.difficulty}
+              {DIFFICULTY_LABELS[song.difficulty] || song.difficulty}
             </span>
             <span className="text-muted-foreground/30">·</span>
             <span className="text-xs text-muted-foreground/70">

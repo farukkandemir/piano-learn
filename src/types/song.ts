@@ -30,11 +30,25 @@ export const CATEGORY_LABELS: Record<SongCategory, string> = {
   other: "Other",
 };
 
+export type SongDifficulty = "beginner" | "intermediate" | "advanced";
+
+export const SONG_DIFFICULTIES: SongDifficulty[] = [
+  "beginner",
+  "intermediate",
+  "advanced",
+];
+
+export const DIFFICULTY_LABELS: Record<SongDifficulty, string> = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+};
+
 export interface Song {
   id: string;
   title: string;
   composer: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  difficulty: SongDifficulty;
   category: SongCategory;
   file_path: string;
   cover_url: string | null;
@@ -44,7 +58,7 @@ export interface Song {
 export interface UploadSongData {
   title: string;
   composer: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  difficulty: SongDifficulty;
   category: SongCategory;
   file: File;
   userId: string;

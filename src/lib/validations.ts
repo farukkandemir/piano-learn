@@ -25,7 +25,7 @@ export const signupSchema = z
 export const uploadSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   composer: z.string().min(1, "Composer is required").max(100),
-  difficulty: z.enum(["Beginner", "Intermediate", "Advanced"]),
+  difficulty: z.enum(["beginner", "intermediate", "advanced"]),
   category: z.enum([
     "classical",
     "modern",
