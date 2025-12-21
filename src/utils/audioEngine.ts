@@ -113,7 +113,7 @@ class AudioEngine {
     if (!this.instrument || !this._loaded) return;
 
     const noteName = midiToNoteName(midiNumber);
-    this.instrument.triggerRelease(noteName, Tone.now());
+    this.instrument.triggerRelease(noteName, "+0.3");
   }
 
   stopAllNotes(): void {
