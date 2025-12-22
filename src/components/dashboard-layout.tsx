@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import {
   Library,
-  Settings,
+  // Settings,
   Home,
   LogOut,
   Sun,
@@ -29,7 +29,7 @@ interface DashboardLayoutProps {
 
 const sidebarLinks = [
   { href: "/library", label: "Library", icon: Library },
-  { href: "/settings", label: "Settings", icon: Settings },
+  // { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
