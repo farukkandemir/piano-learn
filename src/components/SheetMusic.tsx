@@ -289,7 +289,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         )}
         <div
           ref={containerRef}
-          className="h-full overflow-auto bg-white rounded-lg"
+          className="h-full overflow-auto bg-[#f2f4f6] rounded-lg"
         />
       </div>
     );
