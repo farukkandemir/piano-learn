@@ -1,4 +1,5 @@
 import * as Tone from "tone";
+import { Draw } from "tone";
 
 // Note names for MIDI conversion
 const NOTE_NAMES = [
@@ -30,12 +31,30 @@ class AudioEngine {
   private _loaded = false;
   private _muted = false;
 
+  private metronomeScheduleId: number | null = null;
+  private clickSynth: Tone.Synth | null = null;
+
+  // Callback for visual beat indicator - synced with audio clock
+  public onBeat: (() => void) | null = null;
+
   constructor() {
     // Create reverb effect for concert hall feel
     const reverb = new Tone.Reverb({
       decay: 3, // Longer decay for a concert hall feel
       wet: 0.3,
     }).toDestination();
+
+    // Create a high, thin doorbell-like "ding" for metronome
+    this.clickSynth = new Tone.Synth({
+      oscillator: { type: "triangle" },
+      envelope: {
+        attack: 0.001,
+        decay: 0.08,
+        sustain: 0,
+        release: 0.1,
+      },
+    }).toDestination();
+    this.clickSynth.volume.value = -8;
 
     // Use Sampler with Salamander Grand Piano samples
     // These are high-quality, free piano samples hosted by Tone.js
@@ -127,6 +146,52 @@ class AudioEngine {
 
   get loading(): boolean {
     return !this._loaded;
+  }
+
+  async startMetronome(bpm: number): Promise<void> {
+    // Ensure audio context is running (required after user gesture)
+    await this.ensureStarted();
+
+    this.stopMetronome();
+
+    // Set the BPM on Tone.js Transport
+    Tone.getTransport().bpm.value = bpm;
+
+    // Schedule a repeating click using Transport's precise scheduling
+    // Transport uses Web Audio API's clock for sample-accurate timing
+    this.metronomeScheduleId = Tone.getTransport().scheduleRepeat(
+      (time) => {
+        // 'time' is the precise audio context time when this should play
+        // Using the time parameter ensures sample-accurate playback
+        this.clickSynth?.triggerAttackRelease("G6", "32n", time);
+
+        // Schedule visual update synced with audio clock
+        // Draw.schedule runs on main thread but at the correct time
+        if (this.onBeat) {
+          Draw.schedule(() => {
+            this.onBeat?.();
+          }, time);
+        }
+      },
+      "4n", // Quarter note interval
+      0 // Start immediately
+    );
+
+    // Start the Transport
+    Tone.getTransport().start();
+  }
+
+  stopMetronome(): void {
+    if (this.metronomeScheduleId !== null) {
+      Tone.getTransport().clear(this.metronomeScheduleId);
+      this.metronomeScheduleId = null;
+    }
+    Tone.getTransport().stop();
+    Tone.getTransport().position = 0; // Reset position
+  }
+
+  get isMetronomeRunning(): boolean {
+    return this.metronomeScheduleId !== null;
   }
 }
 

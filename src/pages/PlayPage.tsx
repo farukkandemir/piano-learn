@@ -14,6 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useSong, useSongContent } from "@/queries/songs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import Metronome from "@/components/metronome";
 
 type HandMode = "left" | "right" | "both";
 
@@ -391,6 +392,8 @@ export default function PlayPage() {
               onDisconnect={midi.disconnect}
               onRetry={midi.requestAccess}
             />
+
+            <Metronome />
 
             <Button
               onClick={handleToggleMute}
