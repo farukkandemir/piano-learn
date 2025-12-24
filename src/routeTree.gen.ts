@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as AboutRouteImport } from './routes/about'
@@ -21,6 +22,11 @@ import { Route as AuthenticatedLibraryRouteImport } from './routes/_authenticate
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/guide': typeof GuideRoute
   '/login': typeof LoginRoute
+  '/roadmap': typeof RoadmapRoute
   '/signup': typeof SignupRoute
   '/library': typeof AuthenticatedLibraryRoute
   '/play/$songId': typeof PlaySongIdRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/guide': typeof GuideRoute
   '/login': typeof LoginRoute
+  '/roadmap': typeof RoadmapRoute
   '/signup': typeof SignupRoute
   '/library': typeof AuthenticatedLibraryRoute
   '/play/$songId': typeof PlaySongIdRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/guide': typeof GuideRoute
   '/login': typeof LoginRoute
+  '/roadmap': typeof RoadmapRoute
   '/signup': typeof SignupRoute
   '/_authenticated/library': typeof AuthenticatedLibraryRoute
   '/play/$songId': typeof PlaySongIdRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/guide'
     | '/login'
+    | '/roadmap'
     | '/signup'
     | '/library'
     | '/play/$songId'
@@ -103,6 +113,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/guide'
     | '/login'
+    | '/roadmap'
     | '/signup'
     | '/library'
     | '/play/$songId'
@@ -113,6 +124,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/guide'
     | '/login'
+    | '/roadmap'
     | '/signup'
     | '/_authenticated/library'
     | '/play/$songId'
@@ -124,6 +136,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   GuideRoute: typeof GuideRoute
   LoginRoute: typeof LoginRoute
+  RoadmapRoute: typeof RoadmapRoute
   SignupRoute: typeof SignupRoute
   PlaySongIdRoute: typeof PlaySongIdRoute
 }
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -207,6 +227,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   GuideRoute: GuideRoute,
   LoginRoute: LoginRoute,
+  RoadmapRoute: RoadmapRoute,
   SignupRoute: SignupRoute,
   PlaySongIdRoute: PlaySongIdRoute,
 }

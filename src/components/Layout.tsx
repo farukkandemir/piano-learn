@@ -63,6 +63,7 @@ export function Layout({ children }: LayoutProps) {
   const navLinks = [
     { href: "/about", label: "About" },
     { href: "/guide", label: "Guide" },
+    { href: "/roadmap", label: "Roadmap" },
   ];
 
   return (
@@ -127,6 +128,12 @@ export function Layout({ children }: LayoutProps) {
                 className="hover:text-foreground transition-colors"
               >
                 Guide
+              </Link>
+              <Link
+                to="/roadmap"
+                className="hover:text-foreground transition-colors"
+              >
+                Roadmap
               </Link>
               <a
                 href="https://twitter.com/farukkand09"
