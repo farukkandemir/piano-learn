@@ -25,7 +25,7 @@ const features: Feature[] = [
   {
     name: "Metronome",
     description: "A built-in metronome to help you keep time while practicing.",
-    status: "in-progress",
+    status: "done",
   },
   {
     name: "Section Looping",
