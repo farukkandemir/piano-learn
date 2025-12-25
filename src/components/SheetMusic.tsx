@@ -10,6 +10,9 @@ import {
   OpenSheetMusicDisplay as OSMD,
   GraphicalNote,
 } from "opensheetmusicdisplay";
+import { useMeasureBounds } from "@/hooks/use-measure-bounds";
+import { MeasureOverlay } from "./measure-overlay";
+import { useLoopSelection } from "@/hooks/use-loop-selection";
 
 // Note info extracted from OSMD
 export interface NoteInfo {
@@ -51,9 +54,36 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
   ({ xmlContent, onNotesChange, onProgressChange, onReady }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const osmdRef = useRef<OSMD | null>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
     const previousNotesRef = useRef<GraphicalNote[]>([]);
+
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const { loopRange, pendingStart, handleMeasureClick } = useLoopSelection();
+
+    const { recalculateBounds, allMeasureBounds } = useMeasureBounds({
+      osmdRef,
+      containerRef,
+      highlightedRange: loopRange,
+    });
+
+    // Helper: Jump cursor to loop start
+    const jumpToLoopStart = useCallback(() => {
+      if (!osmdRef.current?.cursor || !loopRange) return;
+      const cursor = osmdRef.current.cursor;
+      cursor.reset();
+      while (cursor.Iterator.CurrentMeasureIndex + 1 < loopRange.start) {
+        cursor.next();
+      }
+    }, [loopRange]);
+    // Helper: Check if cursor is outside loop
+    const isOutsideLoop = useCallback((): boolean => {
+      if (!osmdRef.current?.cursor || !loopRange) return false;
+      const currentMeasure =
+        osmdRef.current.cursor.Iterator.CurrentMeasureIndex + 1;
+      return currentMeasure > loopRange.end;
+    }, [loopRange]);
 
     // Reset colors of previously highlighted notes
     const resetPreviousNoteColors = useCallback(() => {
@@ -168,6 +198,12 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
           // Initial highlight
           highlightAndExtractNotes();
 
+          // Calculate measure bounds for overlay
+          // Use setTimeout to ensure SVG is rendered
+          setTimeout(() => {
+            recalculateBounds();
+          }, 100);
+
           setIsLoading(false);
           onReady?.();
         } catch (err) {
@@ -185,12 +221,24 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
       };
     }, [xmlContent, highlightAndExtractNotes, onReady]);
 
+    ///// handles the note navigation when loop range is set
+    useEffect(() => {
+      if (loopRange) {
+        jumpToLoopStart();
+        highlightAndExtractNotes();
+      }
+    }, [loopRange]);
+
     // Navigation methods
     const next = useCallback(() => {
       if (!osmdRef.current?.cursor) return;
       osmdRef.current.cursor.next();
+
+      if (isOutsideLoop()) {
+        jumpToLoopStart();
+      }
       highlightAndExtractNotes();
-    }, [highlightAndExtractNotes]);
+    }, [highlightAndExtractNotes, isOutsideLoop, jumpToLoopStart]);
 
     const previous = useCallback(() => {
       if (!osmdRef.current?.cursor) return;
@@ -215,6 +263,10 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         while (!cursor.Iterator.EndReached) {
           cursor.next();
 
+          if (isOutsideLoop()) {
+            jumpToLoopStart();
+          }
+
           const notes = cursor.GNotesUnderCursor();
           const hasNotesForHand = notes.some((gNote) => {
             const sourceNote = gNote.sourceNote;
@@ -230,7 +282,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
 
         highlightAndExtractNotes(); // Only render ONCE at the final position
       },
-      [highlightAndExtractNotes]
+      [highlightAndExtractNotes, isOutsideLoop, jumpToLoopStart]
     );
 
     // Skip empty positions (bar lines, repeats, etc.) to find next playable note
@@ -242,6 +294,10 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
       // Keep advancing until we find any playable notes (or reach the end)
       while (!cursor.Iterator.EndReached) {
         cursor.next();
+
+        if (isOutsideLoop()) {
+          jumpToLoopStart();
+        }
 
         const notes = cursor.GNotesUnderCursor();
         const hasPlayableNotes = notes.some((gNote) => {
@@ -257,7 +313,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
       // Reached end of piece
       highlightAndExtractNotes();
       return false;
-    }, [highlightAndExtractNotes]);
+    }, [highlightAndExtractNotes, isOutsideLoop, jumpToLoopStart]);
 
     // Expose navigation methods via ref (type-safe, React-idiomatic)
     useImperativeHandle(
@@ -289,7 +345,20 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         )}
         <div
           ref={containerRef}
-          className="h-full overflow-auto bg-[#f2f4f6] rounded-lg"
+          className="h-full overflow-auto bg-[#f2f4f6] rounded-lg relative"
+          onScroll={(e) => {
+            if (overlayRef.current) {
+              overlayRef.current.style.transform = `translate3d(0, -${e.currentTarget.scrollTop}px, 0)`;
+            }
+          }}
+        />
+
+        <MeasureOverlay
+          loopRange={loopRange}
+          overlayRef={overlayRef}
+          allMeasureBounds={allMeasureBounds}
+          onMeasureClick={handleMeasureClick}
+          pendingStart={pendingStart}
         />
       </div>
     );

@@ -26,7 +26,7 @@
 - [ ] Upcoming notes preview (faded)
 - [ ] Note names overlay toggle on piano keys
 - [ ] Finger number suggestions
-- [ ] Built-in metronome
+- [x] Built-in metronome
 - [ ] Keyboard shortcut help overlay (`?` key)
 - [ ] Progress saving mid-session
 
