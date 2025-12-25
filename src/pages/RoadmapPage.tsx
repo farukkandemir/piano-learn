@@ -31,13 +31,13 @@ const features: Feature[] = [
     name: "Section Looping",
     description:
       "Select a range of measures to loop, so you can focus on tricky passages.",
-    status: "planned",
+    status: "done",
   },
   {
     name: "Mobile Improvements",
     description:
       "Better layout and touch controls for practicing on tablets and phones.",
-    status: "planned",
+    status: "in-progress",
   },
 ];
 
