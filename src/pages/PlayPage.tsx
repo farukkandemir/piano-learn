@@ -416,7 +416,7 @@ export default function PlayPage() {
       </div>
 
       {/* Piano Area */}
-      <div className="bg-muted/30 border-t border-border/40">
+      <div className="min-h-0 bg-muted/30 border-t border-border/40">
         <Piano highlightedNotes={filteredNotes} pressedKeys={pressedKeys} />
       </div>
 
