@@ -47,7 +47,7 @@ function TestimonialsBanner() {
         {/* Glow effect */}
         <motion.div
           layout
-          className="absolute -inset-1 bg-primary/20 rounded-full blur-md opacity-60 group-hover:opacity-80 transition-opacity"
+          className="absolute -inset-0.5 bg-primary/15 rounded-full blur-sm opacity-40 group-hover:opacity-60 transition-opacity"
         />
 
         {/* Main pill */}
