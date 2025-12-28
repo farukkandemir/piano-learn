@@ -29,7 +29,7 @@ export function MeasureOverlay({
     <div
       ref={overlayRef}
       className="absolute left-0 top-0 right-0 pointer-events-none"
-      style={{ height: overlayHeight, willChange: "transform" }}
+      style={{ height: overlayHeight }}
     >
       {allMeasureBounds.map((bounds) => {
         const isInRange =

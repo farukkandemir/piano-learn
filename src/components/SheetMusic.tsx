@@ -68,6 +68,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
     ref
   ) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const osmdContainerRef = useRef<HTMLDivElement>(null);
     const osmdRef = useRef<OSMD | null>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
     const previousNotesRef = useRef<GraphicalNote[]>([]);
@@ -173,7 +174,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
 
     // Initialize OSMD
     useEffect(() => {
-      if (!containerRef.current || !xmlContent) return;
+      if (!osmdContainerRef.current || !xmlContent) return;
 
       const initOSMD = async () => {
         try {
@@ -181,7 +182,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
           setError(null);
 
           // Create OSMD instance
-          const osmd = new OSMD(containerRef.current!, {
+          const osmd = new OSMD(osmdContainerRef.current!, {
             autoResize: true,
             drawTitle: true,
             drawSubtitle: false,
@@ -410,21 +411,17 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         <div
           ref={containerRef}
           className="h-full overflow-auto bg-[#f2f4f6] rounded-lg relative"
-          onScroll={(e) => {
-            if (overlayRef.current) {
-              overlayRef.current.style.transform = `translate3d(0, -${e.currentTarget.scrollTop}px, 0)`;
-            }
-          }}
-        />
-
-        <MeasureOverlay
-          loopRange={loopRange}
-          overlayRef={overlayRef}
-          allMeasureBounds={allMeasureBounds}
-          onMeasureClick={handleMeasureClick}
-          pendingStart={pendingStart}
-          playingMeasure={playingMeasure}
-        />
+        >
+          <div ref={osmdContainerRef} />
+          <MeasureOverlay
+            loopRange={loopRange}
+            overlayRef={overlayRef}
+            allMeasureBounds={allMeasureBounds}
+            onMeasureClick={handleMeasureClick}
+            pendingStart={pendingStart}
+            playingMeasure={playingMeasure}
+          />
+        </div>
       </div>
     );
   }
