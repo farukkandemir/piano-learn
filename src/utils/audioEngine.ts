@@ -55,17 +55,17 @@ class AudioEngine {
 
     // Create limiter to prevent clipping with many simultaneous notes
     const limiter = new Tone.Limiter(-3).connect(compressor);
-    // Create a high, thin doorbell-like "ding" for metronome
+    // Create a soft, gentle click for metronome
     this.clickSynth = new Tone.Synth({
-      oscillator: { type: "triangle" },
+      oscillator: { type: "sine" },
       envelope: {
-        attack: 0.001,
-        decay: 0.08,
+        attack: 0.005,
+        decay: 0.06,
         sustain: 0,
-        release: 0.1,
+        release: 0.08,
       },
     }).toDestination();
-    this.clickSynth.volume.value = -8;
+    this.clickSynth.volume.value = -14;
 
     // Use Sampler with Salamander Grand Piano samples
     // These are high-quality, free piano samples hosted by Tone.js
@@ -241,7 +241,7 @@ class AudioEngine {
       (time) => {
         // 'time' is the precise audio context time when this should play
         // Using the time parameter ensures sample-accurate playback
-        this.clickSynth?.triggerAttackRelease("G6", "32n", time);
+        this.clickSynth?.triggerAttackRelease("G5", "32n", time);
 
         // Schedule visual update synced with audio clock
         // Draw.schedule runs on main thread but at the correct time
