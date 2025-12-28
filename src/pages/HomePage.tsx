@@ -38,14 +38,14 @@ function HeroSection() {
 
 function StatsBadges() {
   return (
-    <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+    <div className="flex flex-row items-center justify-center gap-6 text-sm text-muted-foreground">
       <span>
         <span className="text-primary">✦</span> Free forever
       </span>
-      <span className="text-primary/30">·</span>
-      <span>Practice-focused</span>
-      <span className="text-primary/30">·</span>
-      <span>Open community</span>
+      <span className="text-primary">·</span>
+      <span>Any sheet music</span>
+      <span className="text-primary">·</span>
+      <span>MIDI ready</span>
     </div>
   );
 }
