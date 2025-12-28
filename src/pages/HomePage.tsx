@@ -23,12 +23,14 @@ function HeroSection() {
         <span className="h-px w-12 bg-primary/30" />
       </div>
 
-      {/* Main Tagline - concise */}
-      <h1 className="mb-4 text-5xl font-semibold tracking-tight">
-        Practice piano, <span className="text-primary">your way</span>.
+      {/* Main Tagline */}
+      <h1 className="mb-4 text-4xl md:text-5xl font-semibold tracking-tight">
+        Learn what you want,
+        <br />
+        <span className="text-primary">not what we picked</span>.
       </h1>
-      <p className="text-muted-foreground max-w-md mx-auto text-lg">
-        Upload sheets. Connect your keyboard. Learn at your pace.
+      <p className="text-muted-foreground max-w-lg mx-auto text-lg">
+        Import your sheet music and practice with visual guides.
       </p>
     </section>
   );
