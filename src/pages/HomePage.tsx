@@ -23,12 +23,14 @@ function HeroSection() {
         <span className="h-px w-12 bg-primary/30" />
       </div>
 
-      {/* Main Tagline - concise */}
+      {/* Main Tagline */}
       <h1 className="mb-4 text-4xl md:text-5xl font-semibold tracking-tight">
-        Practice piano, <span className="text-primary">your way</span>.
+        Learn what you want,
+        <br />
+        <span className="text-primary">not what we picked</span>.
       </h1>
-      <p className="text-muted-foreground max-w-md mx-auto text-lg">
-        Upload sheets. Connect your keyboard. Learn at your pace.
+      <p className="text-muted-foreground max-w-lg mx-auto text-lg">
+        Import your sheet music and practice with visual guides.
       </p>
     </section>
   );
@@ -36,14 +38,14 @@ function HeroSection() {
 
 function StatsBadges() {
   return (
-    <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+    <div className="flex flex-row items-center justify-center gap-6 text-sm text-muted-foreground">
       <span>
         <span className="text-primary">✦</span> Free forever
       </span>
-      <span className="text-primary/30">·</span>
-      <span>Practice-focused</span>
-      <span className="text-primary/30">·</span>
-      <span>Open community</span>
+      <span className="text-primary">·</span>
+      <span>Any sheet music</span>
+      <span className="text-primary">·</span>
+      <span>MIDI ready</span>
     </div>
   );
 }
@@ -118,7 +120,7 @@ function CommunitySection({
           <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, index) => (
               <SongCardSkeleton key={index} />

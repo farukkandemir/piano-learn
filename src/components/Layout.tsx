@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { ModeToggle } from "@/components/mode-toggle";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, Info, BookOpen, Map, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth";
 import {
@@ -11,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetClose } from "@/components/ui/sheet";
 import type { User } from "@supabase/supabase-js";
 
 interface LayoutProps {
@@ -57,13 +59,14 @@ const UserProfile = ({
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { user, signOut } = useAuth();
 
   const navLinks = [
-    { href: "/about", label: "About" },
-    { href: "/guide", label: "Guide" },
-    { href: "/roadmap", label: "Roadmap" },
+    { href: "/about", label: "About", icon: Info },
+    { href: "/guide", label: "Guide", icon: BookOpen },
+    { href: "/roadmap", label: "Roadmap", icon: Map },
   ];
 
   return (
@@ -77,7 +80,8 @@ export function Layout({ children }: LayoutProps) {
             piano.learn
           </Link>
 
-          <div className="flex items-center gap-4">
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-4">
             <nav className="flex items-center gap-2">
               {navLinks.map((link) => (
                 <Link
@@ -108,6 +112,87 @@ export function Layout({ children }: LayoutProps) {
 
             <ModeToggle />
           </div>
+
+          {/* Mobile Nav */}
+          <div className="flex md:hidden items-center gap-3">
+            <ModeToggle />
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Mobile Menu Sheet */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetContent side="right" className="w-72">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-3 mt-6 mb-2">
+                Navigate
+              </p>
+              <nav className="flex flex-col gap-1">
+                {navLinks.map((link) => (
+                  <SheetClose asChild key={link.href}>
+                    <Link
+                      to={link.href}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-3 text-sm rounded-md transition-colors",
+                        location.pathname === link.href
+                          ? "text-foreground font-medium bg-muted"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      <link.icon className="h-4 w-4" />
+                      {link.label}
+                    </Link>
+                  </SheetClose>
+                ))}
+              </nav>
+
+              <div className="mt-6 pt-6 border-t border-border/40">
+                {user ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 px-3">
+                      {user.user_metadata?.avatar_url ? (
+                        <img
+                          src={user.user_metadata.avatar_url}
+                          alt=""
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
+                          {user.email?.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span className="text-sm text-muted-foreground truncate">
+                        {user.email}
+                      </span>
+                    </div>
+                    <SheetClose asChild>
+                      <button
+                        onClick={signOut}
+                        className="w-full flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Sign out
+                      </button>
+                    </SheetClose>
+                  </div>
+                ) : (
+                  <SheetClose asChild>
+                    <Link
+                      to="/login"
+                      className="flex items-center gap-3 px-3 py-3 text-sm font-medium text-primary hover:bg-muted/50 rounded-md transition-colors"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      Sign in
+                    </Link>
+                  </SheetClose>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
 
