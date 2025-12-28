@@ -19,17 +19,17 @@ export function MeasureOverlay({
   pendingStart,
   playingMeasure,
 }: MeasureOverlayProps) {
-  console.log("allMeasureBounds count:", allMeasureBounds.length);
-  console.log(
-    "Max measure in bounds:",
-    Math.max(...allMeasureBounds.map((b) => b.measureNumber))
-  );
+  // Calculate height needed to cover all measures (for click detection after scroll)
+  const overlayHeight =
+    allMeasureBounds.length > 0
+      ? Math.max(...allMeasureBounds.map((b) => b.y + b.height)) + 20
+      : "100%";
 
   return (
     <div
       ref={overlayRef}
-      className="absolute inset-0 pointer-events-none"
-      style={{ willChange: "transform" }}
+      className="absolute left-0 top-0 right-0 pointer-events-none"
+      style={{ height: overlayHeight, willChange: "transform" }}
     >
       {allMeasureBounds.map((bounds) => {
         const isInRange =
