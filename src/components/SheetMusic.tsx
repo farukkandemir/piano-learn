@@ -21,6 +21,15 @@ export interface NoteInfo {
   duration: number;
 }
 
+// Scheduled note for playback (includes timing)
+export interface ScheduledNote {
+  midiNumber: number;
+  hand: "left" | "right";
+  startTime: number; // In "whole note" units (relative to piece start)
+  duration: number; // In "whole note" units
+  measureIndex: number;
+}
+
 // Progress info for cursor position
 export interface ProgressInfo {
   currentMeasure: number;
@@ -29,6 +38,7 @@ export interface ProgressInfo {
 
 interface SheetMusicProps {
   xmlContent: string;
+  playingMeasure: number | null;
   onNotesChange?: (notes: NoteInfo[]) => void;
   onProgressChange?: (progress: ProgressInfo) => void;
   onReady?: () => void;
@@ -41,6 +51,8 @@ export interface SheetMusicHandle {
   reset: () => void;
   nextForHand: (hand: "left" | "right") => void;
   nextToPlayableNote: () => boolean; // Returns false if end reached
+  getAllNotesWithTiming: () => ScheduledNote[]; // NEW
+  getBPM: () => number; // NEW
 }
 
 // Colors for highlighting
@@ -51,7 +63,10 @@ const COLORS = {
 };
 
 const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
-  ({ xmlContent, onNotesChange, onProgressChange, onReady }, ref) => {
+  (
+    { xmlContent, playingMeasure, onNotesChange, onProgressChange, onReady },
+    ref
+  ) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const osmdRef = useRef<OSMD | null>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
@@ -315,6 +330,53 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
       return false;
     }, [highlightAndExtractNotes, isOutsideLoop, jumpToLoopStart]);
 
+    // Pre-scan the entire score to extract all notes with timing
+    const getAllNotesWithTiming = useCallback((): ScheduledNote[] => {
+      if (!osmdRef.current?.cursor) return [];
+      const cursor = osmdRef.current.cursor;
+      const notes: ScheduledNote[] = [];
+      // Save current cursor position
+      cursor.reset();
+      // Iterate through the entire piece
+      while (!cursor.Iterator.EndReached) {
+        const gNotesUnderCursor = cursor.GNotesUnderCursor();
+        const measureIndex = cursor.Iterator.CurrentMeasureIndex;
+        gNotesUnderCursor.forEach((gNote) => {
+          const sourceNote = gNote.sourceNote;
+          if (!sourceNote || sourceNote.isRest()) return;
+          // Determine hand based on staff
+          const staffIndex =
+            sourceNote.ParentStaffEntry?.ParentStaff?.idInMusicSheet ?? 0;
+          const hand: "left" | "right" = staffIndex === 0 ? "right" : "left";
+          // Get MIDI number
+          const midiNumber = sourceNote.halfTone + 12;
+          // Get timing info (in "whole note" units)
+          // AbsoluteTimestamp is the start position in the piece
+          const startTime = sourceNote.getAbsoluteTimestamp()?.RealValue ?? 0;
+          const duration = sourceNote.Length?.RealValue ?? 0.25;
+
+          notes.push({ midiNumber, hand, startTime, duration, measureIndex });
+        });
+        cursor.next();
+      }
+      // Restore cursor to beginning
+      cursor.reset();
+      highlightAndExtractNotes();
+      return notes;
+    }, [highlightAndExtractNotes]);
+
+    const getBPM = useCallback((): number => {
+      if (!osmdRef.current?.Sheet) return 120; // Default fallback
+
+      // Try to get tempo from first measure
+      const firstMeasure = osmdRef.current.Sheet.SourceMeasures?.[0];
+      if (firstMeasure?.TempoInBPM) {
+        return firstMeasure.TempoInBPM;
+      }
+
+      return 120; // Default if not specified
+    }, []);
+
     // Expose navigation methods via ref (type-safe, React-idiomatic)
     useImperativeHandle(
       ref,
@@ -324,6 +386,8 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         reset,
         nextForHand,
         nextToPlayableNote,
+        getAllNotesWithTiming,
+        getBPM,
       }),
       [next, previous, reset, nextForHand, nextToPlayableNote]
     );
@@ -359,6 +423,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
           allMeasureBounds={allMeasureBounds}
           onMeasureClick={handleMeasureClick}
           pendingStart={pendingStart}
+          playingMeasure={playingMeasure}
         />
       </div>
     );

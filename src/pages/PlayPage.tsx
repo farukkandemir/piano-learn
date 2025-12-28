@@ -15,6 +15,7 @@ import { useSong, useSongContent } from "@/queries/songs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import Metronome from "@/components/metronome";
+import { Play, Pause } from "lucide-react";
 
 type HandMode = "left" | "right" | "both";
 
@@ -106,9 +107,12 @@ export default function PlayPage() {
     error: songContentError,
   } = useSongContent(song?.file_path ?? "");
 
+  const [isListening, setIsListening] = useState(false);
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
+  const [playingMeasure, setPlayingMeasure] = useState<number | null>(null);
+
   const [isMuted, setIsMuted] = useState(false);
   const hasAdvancedRef = useRef(false);
   const checkAndAdvanceRef = useRef<(keys: Set<number>) => void>(() => {});
@@ -289,6 +293,45 @@ export default function PlayPage() {
     audioEngine.setMuted(newMuted);
   };
 
+  // Listen mode - play the entire piece
+  const handleListen = useCallback(async () => {
+    if (!sheetMusicRef.current) return;
+
+    if (audioEngine.playing) {
+      // Stop playback
+      audioEngine.stopPlayback();
+      setPlayingMeasure(null);
+      setIsListening(false);
+      return;
+    }
+
+    // Get all notes and BPM from sheet music
+    const notes = sheetMusicRef.current.getAllNotesWithTiming();
+    const bpm = sheetMusicRef.current.getBPM();
+
+    if (notes.length === 0) {
+      toast.error("No notes found in the score");
+      return;
+    }
+
+    // Set up cursor sync callback
+    audioEngine.onPlaybackNote = (measureIndex) => {
+      // Move cursor to the measure being played
+      setPlayingMeasure(measureIndex);
+    };
+
+    // Set up end callback
+    audioEngine.onPlaybackEnd = () => {
+      setIsListening(false);
+      setPlayingMeasure(null);
+      sheetMusicRef.current?.reset();
+    };
+
+    // Start playback
+    setIsListening(true);
+    await audioEngine.schedulePlayback(notes, bpm);
+  }, []);
+
   if (songError || songContentError) {
     toast("Something went wrong");
     navigate({ to: "/" });
@@ -395,11 +438,50 @@ export default function PlayPage() {
 
             <Metronome />
 
+            {/* Listen Mode Button - with transitions and visual feedback */}
+            <Button
+              variant={isListening ? "default" : "destructive"}
+              size="icon"
+              onClick={handleListen}
+              disabled={!audioLoaded}
+              title={isListening ? "Stop" : "Listen"}
+              className={cn(
+                "h-9 w-9 transition-all duration-200 cursor-pointer",
+                isListening &&
+                  "bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/30",
+                !audioLoaded && "opacity-50 cursor-wait"
+              )}
+            >
+              {!audioLoaded ? (
+                <Spinner className="h-4 w-4" />
+              ) : (
+                <div className="relative">
+                  <Play
+                    className={cn(
+                      "h-4 w-4 absolute transition-all duration-200",
+                      isListening
+                        ? "opacity-0 scale-75 rotate-90"
+                        : "opacity-100 scale-100 rotate-0"
+                    )}
+                  />
+                  <Pause
+                    className={cn(
+                      "h-4 w-4 transition-all duration-200",
+                      isListening
+                        ? "opacity-100 scale-100 rotate-0"
+                        : "opacity-0 scale-75 -rotate-90"
+                    )}
+                  />
+                </div>
+              )}
+            </Button>
+
             <Button
               onClick={handleToggleMute}
               variant="outline"
               size="icon-sm"
               title={isMuted ? "Unmute" : "Mute"}
+              className="cursor-pointer"
             >
               {isMuted ? <VolumeX /> : <Volume2 />}
             </Button>
@@ -409,6 +491,7 @@ export default function PlayPage() {
               variant="outline"
               size="icon-sm"
               title="Reset to beginning"
+              className="cursor-pointer"
             >
               <RotateCcw />
             </Button>
@@ -422,6 +505,7 @@ export default function PlayPage() {
           ref={sheetMusicRef}
           xmlContent={songContent}
           onNotesChange={handleNotesChange}
+          playingMeasure={playingMeasure}
         />
       </div>
 
