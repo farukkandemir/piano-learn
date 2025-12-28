@@ -2,7 +2,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
-
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Upload, ArrowRight, Library } from "lucide-react";
 import { useCommunitySongs } from "@/queries/songs";
 import type { Song } from "@/types/song";
@@ -10,18 +11,103 @@ import { useAuth } from "@/context/auth";
 
 import { SongCard, SongCardSkeleton } from "@/components/song-card";
 
+// Testimonials data - real feedback from Reddit
+const testimonials = [
+  { quote: "Simple interface, clean look", author: "keeklo", source: "Reddit" },
+  { quote: "Section looping is intuitive", author: "keeklo", source: "Reddit" },
+  {
+    quote: "This is what I need!",
+    author: "Ok-Confusion3683",
+    source: "Reddit",
+  },
+  { quote: "Works well on my iPad", author: "keeklo", source: "Reddit" },
+];
+
+function TestimonialsBanner() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const current = testimonials[currentIndex];
+
+  return (
+    <div className="mb-10 flex flex-col items-center gap-3">
+      {/* Glassmorphism pill */}
+      <motion.div
+        className="relative group"
+        layout
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        {/* Glow effect */}
+        <motion.div
+          layout
+          className="absolute -inset-1 bg-primary/20 rounded-full blur-md opacity-60 group-hover:opacity-80 transition-opacity"
+        />
+
+        {/* Main pill */}
+        <motion.div
+          layout
+          className="relative px-5 py-2.5 rounded-full bg-card/60 backdrop-blur-md border border-primary/20 shadow-lg"
+        >
+          <div className="flex items-center gap-2.5">
+            {/* Star icon */}
+            <span className="text-primary text-sm">★</span>
+
+            {/* Quote with Framer Motion animation */}
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={currentIndex}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="text-xs whitespace-nowrap"
+              >
+                <span className="text-primary/60 font-serif">"</span>
+                <span className="text-foreground/85">{current.quote}</span>
+                <span className="text-primary/60 font-serif">"</span>
+                <span className="text-muted-foreground/70 ml-2">
+                  — {current.author}
+                </span>
+                <span className="text-muted-foreground/40 ml-1.5 text-[10px]">
+                  via {current.source}
+                </span>
+              </motion.p>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Indicator dots */}
+      <div className="flex items-center gap-1.5">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              index === currentIndex
+                ? "bg-primary w-4"
+                : "bg-muted-foreground/30 hover:bg-muted-foreground/50 w-1.5"
+            }`}
+            aria-label={`View testimonial ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function HeroSection() {
   return (
     <section className="mb-10 text-center">
-      {/* Quote - subtle with decorative elements */}
-      <div className="mb-12 flex items-center justify-center gap-4">
-        <span className="h-px w-12 bg-primary/30" />
-        <p className="text-sm text-muted-foreground/70 tracking-wide italic">
-          "The piano keys are black and white, but they sound like a million
-          colors."
-        </p>
-        <span className="h-px w-12 bg-primary/30" />
-      </div>
+      {/* Rotating testimonials banner */}
+      <TestimonialsBanner />
 
       {/* Main Tagline */}
       <h1 className="mb-4 text-4xl md:text-5xl font-semibold tracking-tight">
