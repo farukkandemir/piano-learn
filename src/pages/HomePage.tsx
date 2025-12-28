@@ -120,7 +120,7 @@ function CommunitySection({
           <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div className="mt-4 grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, index) => (
               <SongCardSkeleton key={index} />
