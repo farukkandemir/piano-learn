@@ -310,7 +310,7 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen grid grid-rows-[auto_4fr_1fr] bg-background">
       {/* Header - Clean toolbar */}
       <header className="sticky top-0 z-50 bg-background/80 border-b border-border/40">
         <div className="px-4 py-2 flex items-center justify-between">
@@ -407,7 +407,7 @@ export default function PlayPage() {
       </header>
 
       {/* Sheet Music Area */}
-      <div className="flex-1 p-4 overflow-hidden min-h-0">
+      <div className="p-2 md:p-4 overflow-hidden min-h-0">
         <SheetMusic
           ref={sheetMusicRef}
           xmlContent={songContent}
@@ -416,7 +416,7 @@ export default function PlayPage() {
       </div>
 
       {/* Piano Area */}
-      <div className="h-44 bg-muted/30 border-t border-border/40">
+      <div className="bg-muted/30 border-t border-border/40">
         <Piano highlightedNotes={filteredNotes} pressedKeys={pressedKeys} />
       </div>
 
