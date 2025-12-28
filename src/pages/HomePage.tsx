@@ -24,7 +24,7 @@ function HeroSection() {
       </div>
 
       {/* Main Tagline - concise */}
-      <h1 className="mb-4 text-4xl md:text-5xl font-semibold tracking-tight">
+      <h1 className="mb-4 text-5xl font-semibold tracking-tight">
         Practice piano, <span className="text-primary">your way</span>.
       </h1>
       <p className="text-muted-foreground max-w-md mx-auto text-lg">
@@ -118,7 +118,7 @@ function CommunitySection({
           <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, index) => (
               <SongCardSkeleton key={index} />
