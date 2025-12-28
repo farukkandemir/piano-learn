@@ -310,7 +310,7 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="h-dvh overscroll-none grid grid-rows-[auto_4fr_1fr] bg-background">
+    <div className="h-dvh grid grid-rows-[auto_4fr_1fr] bg-background">
       {/* Header - Clean toolbar */}
       <header className="sticky top-0 z-50 bg-background/80 border-b border-border/40">
         <div className="px-4 py-2 flex items-center justify-between">
