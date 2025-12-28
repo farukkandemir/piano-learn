@@ -440,7 +440,7 @@ export default function PlayPage() {
 
             {/* Listen Mode Button - with transitions and visual feedback */}
             <Button
-              variant={isListening ? "default" : "destructive"}
+              variant="default"
               size="icon"
               onClick={handleListen}
               disabled={!audioLoaded}
@@ -448,7 +448,7 @@ export default function PlayPage() {
               className={cn(
                 "h-9 w-9 transition-all duration-200 cursor-pointer",
                 isListening &&
-                  "bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/30",
+                  "bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/30",
                 !audioLoaded && "opacity-50 cursor-wait"
               )}
             >

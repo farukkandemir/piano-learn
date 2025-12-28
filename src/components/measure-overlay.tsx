@@ -52,14 +52,14 @@ export function MeasureOverlay({
               width: bounds.width,
               height: bounds.height,
               backgroundColor: isPlaying
-                ? "rgba(249, 115, 22, 0.2)"
+                ? "rgba(16, 185, 129, 0.2)"
                 : isPendingStart
                   ? "rgba(251, 191, 36, 0.2)"
                   : isInRange
                     ? "rgba(59, 130, 246, 0.1)"
                     : "transparent",
               border: isPlaying
-                ? "2px solid rgba(249, 115, 22, 0.6)" // Orange border
+                ? "2px solid rgba(16, 185, 129, 0.6)" // Green/teal border
                 : isPendingStart
                   ? "2px solid rgba(251, 191, 36, 0.5)"
                   : isInRange
