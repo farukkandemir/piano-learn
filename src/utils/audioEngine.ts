@@ -45,8 +45,16 @@ class AudioEngine {
   public onPlaybackEnd: (() => void) | null = null;
 
   constructor() {
+    // Create compressor to tame bass chord dynamics
+    const compressor = new Tone.Compressor({
+      threshold: -24,
+      ratio: 4,
+      attack: 0.003,
+      release: 0.25,
+    }).toDestination();
+
     // Create limiter to prevent clipping with many simultaneous notes
-    const limiter = new Tone.Limiter(-3).toDestination();
+    const limiter = new Tone.Limiter(-3).connect(compressor);
     // Create a high, thin doorbell-like "ding" for metronome
     this.clickSynth = new Tone.Synth({
       oscillator: { type: "triangle" },
@@ -164,6 +172,9 @@ class AudioEngine {
         this._loaded = true;
       },
     }).connect(limiter);
+
+    // Reduce overall piano volume
+    this.instrument.volume.value = -6;
   }
 
   async ensureStarted(): Promise<void> {
@@ -299,8 +310,9 @@ class AudioEngine {
       const attackId = Tone.getTransport().schedule((time) => {
         noteGroup.forEach((note) => {
           const noteName = this.midiToNoteName(note.midiNumber);
-          // Use triggerAttack like manual play - lower velocity for cleaner playback
-          this.instrument?.triggerAttack(noteName, time, 0.5);
+          // Lower velocity for left hand to reduce bass muddiness
+          const velocity = note.hand === "left" ? 0.35 : 0.5;
+          this.instrument?.triggerAttack(noteName, time, velocity);
         });
 
         // Sync cursor on main thread using Draw
