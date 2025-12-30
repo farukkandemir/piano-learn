@@ -3,7 +3,7 @@
 ## Bugs
 
 - [ ] **Scroll jumps back up** - After hitting correct notes, view scrolls back to top (2025-12-30)
-- [ ] **Explore button broken** - "Explore more" on index page doesn't work (2025-12-30)
+- [x] **Explore button broken** - "Explore more" on index page doesn't work — commented out for now (2025-12-30)
 - [x] **Tied notes cursor issue** - Tied notes require pressing key twice to move cursor (2025-12-27)
 
 ## Feature Requests
