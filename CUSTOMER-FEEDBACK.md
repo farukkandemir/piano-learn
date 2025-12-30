@@ -2,7 +2,7 @@
 
 ## Bugs
 
-- [ ] **Tied notes cursor issue** - Tied notes require pressing the key twice to move the cursor. Playing normally with tied notes causes following notes to be delayed/out of sync.
+- [x] **Tied notes cursor issue** - Tied notes require pressing the key twice to move the cursor. Playing normally with tied notes causes following notes to be delayed/out of sync.
   - Source: Reddit user (2025-12-27)
 
 ## Improvement Ideas
