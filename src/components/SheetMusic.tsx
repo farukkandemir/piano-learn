@@ -129,6 +129,10 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         const sourceNote = gNote.sourceNote;
         if (!sourceNote || sourceNote.isRest()) return;
 
+        if (sourceNote.NoteTie && sourceNote.NoteTie.StartNote !== sourceNote) {
+          return; // Skip - this is a held note, not a new press
+        }
+
         // Determine hand based on staff
         const staffIndex =
           sourceNote.ParentStaffEntry?.ParentStaff?.idInMusicSheet ?? 0;

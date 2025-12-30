@@ -2,7 +2,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
-
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Upload, ArrowRight, Library } from "lucide-react";
 import { useCommunitySongs } from "@/queries/songs";
 import type { Song } from "@/types/song";
@@ -10,25 +11,112 @@ import { useAuth } from "@/context/auth";
 
 import { SongCard, SongCardSkeleton } from "@/components/song-card";
 
+// Testimonials data - real feedback from Reddit
+const testimonials = [
+  { quote: "Simple interface, clean look", author: "keeklo", source: "Reddit" },
+  { quote: "Section looping is intuitive", author: "keeklo", source: "Reddit" },
+  {
+    quote: "This is what I need!",
+    author: "Ok-Confusion3683",
+    source: "Reddit",
+  },
+  { quote: "Works well on my iPad", author: "keeklo", source: "Reddit" },
+];
+
+function TestimonialsBanner() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const current = testimonials[currentIndex];
+
+  return (
+    <div className="mb-10 flex flex-col items-center gap-3">
+      {/* Glassmorphism pill */}
+      <motion.div
+        className="relative group"
+        layout
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        {/* Glow effect */}
+        <motion.div
+          layout
+          className="absolute -inset-0.5 bg-primary/15 rounded-full blur-sm opacity-40 group-hover:opacity-60 transition-opacity"
+        />
+
+        {/* Main pill */}
+        <motion.div
+          layout
+          className="relative px-5 py-2.5 rounded-full bg-card/60 backdrop-blur-md border border-primary/20 shadow-lg"
+        >
+          <div className="flex items-center gap-2.5">
+            {/* Star icon */}
+            <span className="text-primary text-sm">★</span>
+
+            {/* Quote with Framer Motion animation */}
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={currentIndex}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="text-xs whitespace-nowrap"
+              >
+                <span className="text-primary/60 font-serif">"</span>
+                <span className="text-foreground/85">{current.quote}</span>
+                <span className="text-primary/60 font-serif">"</span>
+                <span className="text-muted-foreground/70 ml-2">
+                  — {current.author}
+                </span>
+                <span className="text-muted-foreground/40 ml-1.5 text-[10px]">
+                  via {current.source}
+                </span>
+              </motion.p>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Indicator dots */}
+      <div className="flex items-center gap-1.5">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              index === currentIndex
+                ? "bg-primary w-4"
+                : "bg-muted-foreground/30 hover:bg-muted-foreground/50 w-1.5"
+            }`}
+            aria-label={`View testimonial ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function HeroSection() {
   return (
     <section className="mb-10 text-center">
-      {/* Quote - subtle with decorative elements */}
-      <div className="mb-12 flex items-center justify-center gap-4">
-        <span className="h-px w-12 bg-primary/30" />
-        <p className="text-sm text-muted-foreground/70 tracking-wide italic">
-          "The piano keys are black and white, but they sound like a million
-          colors."
-        </p>
-        <span className="h-px w-12 bg-primary/30" />
-      </div>
+      {/* Rotating testimonials banner */}
+      <TestimonialsBanner />
 
-      {/* Main Tagline - concise */}
+      {/* Main Tagline */}
       <h1 className="mb-4 text-4xl md:text-5xl font-semibold tracking-tight">
-        Practice piano, <span className="text-primary">your way</span>.
+        Learn what you want,
+        <br />
+        <span className="text-primary">not what we picked</span>.
       </h1>
-      <p className="text-muted-foreground max-w-md mx-auto text-lg">
-        Upload sheets. Connect your keyboard. Learn at your pace.
+      <p className="text-muted-foreground max-w-lg mx-auto text-lg">
+        Import your sheet music and practice with visual guides.
       </p>
     </section>
   );
@@ -36,14 +124,14 @@ function HeroSection() {
 
 function StatsBadges() {
   return (
-    <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+    <div className="flex flex-row items-center justify-center gap-6 text-sm text-muted-foreground">
       <span>
         <span className="text-primary">✦</span> Free forever
       </span>
-      <span className="text-primary/30">·</span>
-      <span>Practice-focused</span>
-      <span className="text-primary/30">·</span>
-      <span>Open community</span>
+      <span className="text-primary">·</span>
+      <span>Any sheet music</span>
+      <span className="text-primary">·</span>
+      <span>MIDI ready</span>
     </div>
   );
 }
@@ -118,7 +206,7 @@ function CommunitySection({
           <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, index) => (
               <SongCardSkeleton key={index} />

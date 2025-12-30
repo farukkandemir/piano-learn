@@ -353,11 +353,11 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Header - Option B style: Clean toolbar */}
+    <div className="h-dvh grid grid-rows-[auto_4fr_1fr] bg-background">
+      {/* Header - Clean toolbar */}
       <header className="sticky top-0 z-50 bg-background/80 border-b border-border/40">
         <div className="px-4 py-2 flex items-center justify-between">
-          {/* Left: Back button (isolated escape hatch) */}
+          {/* Left: Back button */}
           <Button
             onClick={() => navigate({ to: "/" })}
             variant="ghost"
@@ -368,24 +368,14 @@ export default function PlayPage() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
 
-          {/* Center: Song info */}
-          <div className="flex-1 min-w-0 text-center px-4">
-            <p className="text-sm font-medium truncate">{song.title}</p>
-            {song.composer && (
-              <p className="text-xs text-muted-foreground truncate">
-                {song.composer}
-              </p>
-            )}
-          </div>
-
-          {/* Right: Status indicators + Reset */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right: Controls */}
+          <div className="flex items-center gap-3 shrink-0">
             {/* Hand Mode Toggle */}
             <div className="flex items-center rounded-md border border-border overflow-hidden">
               <button
                 onClick={() => setHandMode("left")}
                 className={cn(
-                  "p-1.5 ",
+                  "p-2",
                   handMode === "left"
                     ? "bg-teal-500 text-white"
                     : "text-muted-foreground hover:bg-muted"
@@ -397,7 +387,7 @@ export default function PlayPage() {
               <button
                 onClick={() => setHandMode("both")}
                 className={cn(
-                  "p-1.5 border-x border-border",
+                  "p-2 border-x border-border",
                   handMode === "both"
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-muted"
@@ -412,7 +402,7 @@ export default function PlayPage() {
               <button
                 onClick={() => setHandMode("right")}
                 className={cn(
-                  "p-1.5 ",
+                  "p-2",
                   handMode === "right"
                     ? "bg-orange-500 text-white"
                     : "text-muted-foreground hover:bg-muted"
@@ -423,7 +413,7 @@ export default function PlayPage() {
               </button>
             </div>
 
-            {/* MIDI Status - compact dot with dropdown */}
+            {/* MIDI Status */}
             <MidiStatus
               isSupported={midi.isSupported}
               isConnected={midi.isConnected}
@@ -485,7 +475,7 @@ export default function PlayPage() {
             >
               {isMuted ? <VolumeX /> : <Volume2 />}
             </Button>
-            {/* Reset button */}
+
             <Button
               onClick={handleReset}
               variant="outline"
@@ -500,7 +490,7 @@ export default function PlayPage() {
       </header>
 
       {/* Sheet Music Area */}
-      <div className="flex-1 p-4 overflow-hidden min-h-0">
+      <div className="p-2 md:p-4 overflow-hidden min-h-0">
         <SheetMusic
           ref={sheetMusicRef}
           xmlContent={songContent}
@@ -510,7 +500,7 @@ export default function PlayPage() {
       </div>
 
       {/* Piano Area */}
-      <div className="h-44 bg-muted/30 border-t border-border/40">
+      <div className="bg-muted/30 border-t border-border/40">
         <Piano highlightedNotes={filteredNotes} pressedKeys={pressedKeys} />
       </div>
 

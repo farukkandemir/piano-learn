@@ -3,9 +3,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html,
 body {
   font-family: "Geist", sans-serif;
   letter-spacing: 0.01em;
+  overscroll-behavior: none;
 }
 
 :root {
