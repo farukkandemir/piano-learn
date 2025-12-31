@@ -197,6 +197,7 @@ function CommunitySection({
     <section className="mt-[5%]">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold">Community Favorites</h2>
+        {/* TODO: Implement explore more functionality
         <Button
           variant="link"
           size="sm"
@@ -205,6 +206,7 @@ function CommunitySection({
           Explore more
           <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
+        */}
       </div>
       <div className="mt-4 grid gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {isLoading
