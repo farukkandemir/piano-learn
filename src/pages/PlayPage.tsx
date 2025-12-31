@@ -429,7 +429,7 @@ export default function PlayPage() {
             <Metronome />
 
             {/* Listen Mode Button - with transitions and visual feedback */}
-            <Button
+            {/* <Button
               variant="default"
               size="icon"
               onClick={handleListen}
@@ -464,7 +464,7 @@ export default function PlayPage() {
                   />
                 </div>
               )}
-            </Button>
+            </Button> */}
 
             <Button
               onClick={handleToggleMute}
