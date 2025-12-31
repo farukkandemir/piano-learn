@@ -208,7 +208,9 @@ export default function PlayPage() {
   // Stop all notes and playback on unmount
   useEffect(() => {
     return () => {
-      audioEngine.stopPlayback();
+      if (audioEngine.playing) {
+        audioEngine.stopPlayback();
+      }
       audioEngine.stopAllNotes();
     };
   }, []);
