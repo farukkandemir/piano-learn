@@ -15,7 +15,7 @@ import { useSong, useSongContent } from "@/queries/songs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import Metronome from "@/components/metronome";
-import { Play, Pause } from "lucide-react";
+// import { Play, Pause } from "lucide-react";
 
 type HandMode = "left" | "right" | "both";
 
@@ -107,11 +107,11 @@ export default function PlayPage() {
     error: songContentError,
   } = useSongContent(song?.file_path ?? "");
 
-  const [isListening, setIsListening] = useState(false);
+  // const [isListening, setIsListening] = useState(false);
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
-  const [playingMeasure, setPlayingMeasure] = useState<number | null>(null);
+  const [playingMeasure, _] = useState<number | null>(null);
 
   const [isMuted, setIsMuted] = useState(false);
   const hasAdvancedRef = useRef(false);
@@ -294,43 +294,43 @@ export default function PlayPage() {
   };
 
   // Listen mode - play the entire piece
-  const handleListen = useCallback(async () => {
-    if (!sheetMusicRef.current) return;
+  // const handleListen = useCallback(async () => {
+  //   if (!sheetMusicRef.current) return;
 
-    if (audioEngine.playing) {
-      // Stop playback
-      audioEngine.stopPlayback();
-      setPlayingMeasure(null);
-      setIsListening(false);
-      return;
-    }
+  //   if (audioEngine.playing) {
+  //     // Stop playback
+  //     audioEngine.stopPlayback();
+  //     setPlayingMeasure(null);
+  //     setIsListening(false);
+  //     return;
+  //   }
 
-    // Get all notes and BPM from sheet music
-    const notes = sheetMusicRef.current.getAllNotesWithTiming();
-    const bpm = sheetMusicRef.current.getBPM();
+  //   // Get all notes and BPM from sheet music
+  //   const notes = sheetMusicRef.current.getAllNotesWithTiming();
+  //   const bpm = sheetMusicRef.current.getBPM();
 
-    if (notes.length === 0) {
-      toast.error("No notes found in the score");
-      return;
-    }
+  //   if (notes.length === 0) {
+  //     toast.error("No notes found in the score");
+  //     return;
+  //   }
 
-    // Set up cursor sync callback
-    audioEngine.onPlaybackNote = (measureIndex) => {
-      // Move cursor to the measure being played
-      setPlayingMeasure(measureIndex);
-    };
+  //   // Set up cursor sync callback
+  //   audioEngine.onPlaybackNote = (measureIndex) => {
+  //     // Move cursor to the measure being played
+  //     setPlayingMeasure(measureIndex);
+  //   };
 
-    // Set up end callback
-    audioEngine.onPlaybackEnd = () => {
-      setIsListening(false);
-      setPlayingMeasure(null);
-      sheetMusicRef.current?.reset();
-    };
+  //   // Set up end callback
+  //   audioEngine.onPlaybackEnd = () => {
+  //     setIsListening(false);
+  //     setPlayingMeasure(null);
+  //     sheetMusicRef.current?.reset();
+  //   };
 
-    // Start playback
-    setIsListening(true);
-    await audioEngine.schedulePlayback(notes, bpm);
-  }, []);
+  //   // Start playback
+  //   setIsListening(true);
+  //   await audioEngine.schedulePlayback(notes, bpm);
+  // }, []);
 
   if (songError || songContentError) {
     toast("Something went wrong");
