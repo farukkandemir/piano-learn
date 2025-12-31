@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import Metronome from "@/components/metronome";
 import { PlaybackTimeline } from "@/components/PlaybackTimeline";
-import { usePlaybackProgress } from "@/hooks/use-playback-progress";
 import { KEYBOARD_MAP } from "@/lib/contants";
 
 type HandMode = "left" | "right" | "both";
