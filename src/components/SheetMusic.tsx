@@ -139,10 +139,16 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         notes.push({ midiNumber, hand, duration });
       });
 
+      // Save scroll position before re-render
+      const scrollTop = containerRef.current?.scrollTop ?? 0;
+
       // Re-render to show color changes
       osmdRef.current.render();
 
-      // Show cursor again after render
+      // Restore scroll position after render
+      if (containerRef.current) {
+        containerRef.current.scrollTop = scrollTop;
+      }
       osmdRef.current.cursor.show();
 
       // Report progress (measure info)
