@@ -341,6 +341,21 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
       return false;
     }, [highlightAndExtractNotes, isOutsideLoop, jumpToLoopStart]);
 
+    // Helper: Calculate total duration of a tied note chain
+    const getTiedNoteDuration = (note: any): number => {
+      // If not part of a tie, just return the note's own duration
+      if (!note.NoteTie) {
+        return note.Length?.RealValue ?? 0.25;
+      }
+
+      // Sum all notes in the tie chain
+      let totalDuration = 0;
+      for (const tiedNote of note.NoteTie.Notes) {
+        totalDuration += tiedNote.Length?.RealValue ?? 0;
+      }
+      return totalDuration || 0.25;
+    };
+
     // Pre-scan the entire score to extract all notes with timing
     const getAllNotesWithTiming = useCallback((): ScheduledNote[] => {
       if (!osmdRef.current?.cursor) return [];
@@ -373,7 +388,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
           // Get timing info (in "whole note" units)
           // AbsoluteTimestamp is the start position in the piece
           const startTime = sourceNote.getAbsoluteTimestamp()?.RealValue ?? 0;
-          const duration = sourceNote.Length?.RealValue ?? 0.25;
+          const duration = getTiedNoteDuration(sourceNote);
 
           notes.push({ midiNumber, hand, startTime, duration, measureIndex });
         });
