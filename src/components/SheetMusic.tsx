@@ -355,6 +355,15 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
         gNotesUnderCursor.forEach((gNote) => {
           const sourceNote = gNote.sourceNote;
           if (!sourceNote || sourceNote.isRest()) return;
+
+          // Skip continuation notes of ties (only play the START of tied notes)
+          if (
+            sourceNote.NoteTie &&
+            sourceNote.NoteTie.StartNote !== sourceNote
+          ) {
+            return;
+          }
+
           // Determine hand based on staff
           const staffIndex =
             sourceNote.ParentStaffEntry?.ParentStaff?.idInMusicSheet ?? 0;
