@@ -299,6 +299,9 @@ class AudioEngine {
       return;
     }
 
+    // Restore volume (may have been muted by previous stop)
+    this.instrument.volume.value = -6;
+
     // Set tempo
     Tone.getTransport().bpm.value = bpm;
 
@@ -392,20 +395,28 @@ class AudioEngine {
   }
 
   stopPlayback(): void {
-    // Cancel ALL scheduled events first
-    Tone.getTransport().cancel();
-    // Clear all scheduled notes
+    // 1. Mute immediately for instant silence (keeps muted until next playback)
+    if (this.instrument) {
+      this.instrument.volume.value = -Infinity;
+    }
+
+    // 2. Stop transport first (prevents more events from firing)
+    Tone.getTransport().stop();
+    Tone.getTransport().position = 0;
+
+    // 3. Cancel all scheduled events
+    Tone.getTransport().cancel(0);
     this.playbackScheduleIds.forEach((id) => {
       Tone.getTransport().clear(id);
     });
     this.playbackScheduleIds = [];
-    // Stop transport and reset
-    Tone.getTransport().stop();
-    Tone.getTransport().position = 0;
-    // Immediately release ALL playing notes (no decay)
+
+    // 4. Release all notes (muted, so no sound)
     if (this.instrument) {
-      this.instrument.releaseAll(Tone.now());
+      this.instrument.releaseAll();
     }
+
+    // 5. Reset state (volume restored in next schedulePlayback)
     this.isPlaying = false;
     this.isPaused = false;
     this._totalDuration = 0;
@@ -414,6 +425,10 @@ class AudioEngine {
 
   pausePlayback(): void {
     if (!this.isPlaying || this.isPaused) return;
+    // Mute to stop any ringing notes
+    if (this.instrument) {
+      this.instrument.volume.value = -Infinity;
+    }
     Tone.getTransport().pause();
     this.isPaused = true;
     this.notifyStateChange();
@@ -421,6 +436,10 @@ class AudioEngine {
 
   resumePlayback(): void {
     if (!this.isPlaying || !this.isPaused) return;
+    // Restore volume before resuming
+    if (this.instrument) {
+      this.instrument.volume.value = -6;
+    }
     Tone.getTransport().start();
     this.isPaused = false;
     this.notifyStateChange();
