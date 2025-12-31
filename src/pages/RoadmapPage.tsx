@@ -3,6 +3,11 @@ import { Badge } from "@/components/ui/badge";
 
 type FeatureStatus = "done" | "in-progress" | "planned";
 
+interface ChangelogEntry {
+  date: string;
+  items: string[];
+}
+
 interface Feature {
   name: string;
   description: string;
@@ -21,22 +26,34 @@ const STATUS_LABELS: Record<FeatureStatus, string> = {
   planned: "Planned",
 };
 
-const features: Feature[] = [
+// Changelog entries - newest first
+const changelog: ChangelogEntry[] = [
   {
-    name: "Metronome",
-    description: "A built-in metronome to help you keep time while practicing.",
-    status: "done",
+    date: "December 30, 2024",
+    items: [
+      "Sheet music now stays in place when playing notes after scrolling",
+      "Improved mobile and tablet layouts",
+    ],
   },
   {
-    name: "Section Looping",
-    description:
-      "Select a range of measures to loop, so you can focus on tricky passages.",
-    status: "done",
+    date: "December 27, 2024",
+    items: [
+      "Loop any section of the music to practice tricky passages",
+      "Built-in metronome to help keep time",
+    ],
   },
   {
-    name: "Mobile Improvements",
+    date: "December 21, 2024",
+    items: ["Initial public launch 🎉"],
+  },
+];
+
+// Upcoming features
+const upcomingFeatures: Feature[] = [
+  {
+    name: "Audio Playback for Songs",
     description:
-      "Better layout and touch controls for practicing on tablets and phones.",
+      "Listen to any song before you practice, hear how it should sound at full tempo.",
     status: "in-progress",
   },
 ];
@@ -48,24 +65,51 @@ export default function RoadmapPage() {
         {/* Header */}
         <section className="mb-12 p-6 rounded-lg bg-secondary/30">
           <p className="text-primary mb-6 text-sm uppercase tracking-wider font-medium">
-            What's next
+            Updates
           </p>
           <h1 className="text-xl font-medium leading-relaxed mb-6">
-            Here's what I'm working on and{" "}
-            <span className="text-primary">what's coming</span>.
+            What's <span className="text-primary">new</span> and what's coming.
           </h1>
           <p className="text-sm text-muted-foreground/80">
-            If there's something you'd love to see, let me know!
+            Follow along as I build. Got ideas? Let me know!
           </p>
         </section>
 
-        {/* Feature List */}
+        {/* Changelog */}
         <section className="mb-16">
           <h2 className="text-sm uppercase tracking-wider text-primary mb-8 font-medium">
-            Upcoming Features
+            Recent Updates
+          </h2>
+          <div className="space-y-8">
+            {changelog.map((entry) => (
+              <div key={entry.date} className="relative pl-6">
+                {/* Timeline dot */}
+                <div className="absolute left-0 top-1.5 w-2 h-2 rounded-full bg-primary" />
+                {/* Timeline line */}
+                <div className="absolute left-[3px] top-4 bottom-0 w-0.5 bg-primary/20" />
+
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  {entry.date}
+                </p>
+                <ul className="space-y-1">
+                  {entry.items.map((item, i) => (
+                    <li key={i} className="text-sm">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Upcoming Features */}
+        <section className="mb-16">
+          <h2 className="text-sm uppercase tracking-wider text-primary mb-8 font-medium">
+            What's Next
           </h2>
           <div className="space-y-6">
-            {features.map((feature) => (
+            {upcomingFeatures.map((feature) => (
               <div
                 key={feature.name}
                 className="border-l-2 border-primary/50 pl-6 py-2"
