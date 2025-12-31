@@ -15,6 +15,8 @@ import { useSong, useSongContent } from "@/queries/songs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import Metronome from "@/components/metronome";
+import { PlaybackTimeline } from "@/components/PlaybackTimeline";
+import { usePlaybackProgress } from "@/hooks/use-playback-progress";
 import { Play, Pause } from "lucide-react";
 import { KEYBOARD_MAP } from "@/lib/contants";
 
@@ -38,11 +40,13 @@ export default function PlayPage() {
     error: songContentError,
   } = useSongContent(song?.file_path ?? "");
 
-  const [isListening, setIsListening] = useState(false);
   const [currentNotes, setCurrentNotes] = useState<NoteInfo[]>([]);
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [playingMeasure, setPlayingMeasure] = useState<number | null>(null);
+
+  // Use the playback progress hook for unified state
+  const { isPlaying: isListening } = usePlaybackProgress();
 
   const [isMuted, setIsMuted] = useState(false);
   const hasAdvancedRef = useRef(false);
@@ -232,7 +236,6 @@ export default function PlayPage() {
       // Stop playback
       audioEngine.stopPlayback();
       setPlayingMeasure(null);
-      setIsListening(false);
       return;
     }
 
@@ -253,13 +256,11 @@ export default function PlayPage() {
 
     // Set up end callback
     audioEngine.onPlaybackEnd = () => {
-      setIsListening(false);
       setPlayingMeasure(null);
       sheetMusicRef.current?.reset();
     };
 
     // Start playback
-    setIsListening(true);
     await audioEngine.schedulePlayback(notes, bpm);
   }, []);
 
@@ -284,7 +285,7 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="h-dvh grid grid-rows-[auto_4fr_1fr] bg-background">
+    <div className="h-dvh grid grid-rows-[auto_auto_1fr_auto] bg-background">
       {/* Header - Clean toolbar */}
       <header className="sticky top-0 z-50 bg-background/80 border-b border-border/40">
         <div className="px-4 py-2 flex items-center justify-between">
@@ -419,6 +420,9 @@ export default function PlayPage() {
           </div>
         </div>
       </header>
+
+      {/* Playback Timeline */}
+      <PlaybackTimeline />
 
       {/* Sheet Music Area */}
       <div className="p-2 md:p-4 overflow-hidden min-h-0">

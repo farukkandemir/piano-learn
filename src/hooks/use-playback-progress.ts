@@ -5,11 +5,11 @@ interface PlaybackProgressState {
   currentTime: number;
   totalDuration: number;
   progress: number; // 0-100
+  isPlaying: boolean;
+  isPaused: boolean;
 }
 
 interface UsePlaybackProgressReturn extends PlaybackProgressState {
-  isPlaying: boolean;
-  isPaused: boolean;
   pause: () => void;
   resume: () => void;
   togglePause: () => void;
@@ -20,54 +20,88 @@ export function usePlaybackProgress(): UsePlaybackProgressReturn {
     currentTime: 0,
     totalDuration: 0,
     progress: 0,
+    isPlaying: false,
+    isPaused: false,
   });
 
   const animationFrameRef = useRef<number | null>(null);
 
-  // Update loop - runs at ~60fps while playing
+  // RAF loop for smooth progress updates during playback
   const updateProgress = useCallback(() => {
     const currentTime = audioEngine.currentTime;
     const totalDuration = audioEngine.totalDuration;
     const progress =
       totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0;
 
-    setState({
+    setState((prev) => ({
+      ...prev,
       currentTime,
       totalDuration,
       progress: Math.min(progress, 100),
-    });
+    }));
 
-    // Continue loop if playing (even when paused, Transport.seconds still readable)
-    if (audioEngine.playing) {
+    // Continue loop only if still playing and not paused
+    if (audioEngine.playing && !audioEngine.paused) {
       animationFrameRef.current = requestAnimationFrame(updateProgress);
     } else {
       animationFrameRef.current = null;
     }
   }, []);
 
-  // Detect playback start/stop
+  // Start/stop RAF loop based on playback state
+  const startProgressLoop = useCallback(() => {
+    if (!animationFrameRef.current) {
+      animationFrameRef.current = requestAnimationFrame(updateProgress);
+    }
+  }, [updateProgress]);
+
+  const stopProgressLoop = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+  }, []);
+
+  // Subscribe to audioEngine state changes (event-driven, no polling)
   useEffect(() => {
-    const checkInterval = setInterval(() => {
-      const isPlaying = audioEngine.playing;
+    const handleStateChange = (newState: {
+      isPlaying: boolean;
+      isPaused: boolean;
+    }) => {
+      setState((prev) => ({
+        ...prev,
+        isPlaying: newState.isPlaying,
+        isPaused: newState.isPaused,
+        // Reset progress when playback stops
+        ...(newState.isPlaying
+          ? {}
+          : { currentTime: 0, totalDuration: 0, progress: 0 }),
+      }));
 
-      // Start RAF loop when playback begins
-      if (isPlaying && !animationFrameRef.current) {
-        updateProgress();
-      }
-
-      // Reset state when playback stops
-      if (!isPlaying && animationFrameRef.current === null) {
-        setState({ currentTime: 0, totalDuration: 0, progress: 0 });
-      }
-    }, 100);
-
-    return () => {
-      clearInterval(checkInterval);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
+      // Start RAF loop when playing and not paused
+      if (newState.isPlaying && !newState.isPaused) {
+        startProgressLoop();
+      } else {
+        stopProgressLoop();
       }
     };
-  }, [updateProgress]);
+
+    // Set up the callback
+    audioEngine.onPlaybackStateChange = handleStateChange;
+
+    // Sync initial state in case playback is already active
+    if (audioEngine.playing) {
+      handleStateChange({
+        isPlaying: audioEngine.playing,
+        isPaused: audioEngine.paused,
+      });
+    }
+
+    return () => {
+      audioEngine.onPlaybackStateChange = null;
+      stopProgressLoop();
+    };
+  }, [startProgressLoop, stopProgressLoop]);
 
   const pause = useCallback(() => {
     audioEngine.pausePlayback();
@@ -87,9 +121,6 @@ export function usePlaybackProgress(): UsePlaybackProgressReturn {
 
   return {
     ...state,
-    // Read directly from audioEngine - single source of truth
-    isPlaying: audioEngine.playing,
-    isPaused: audioEngine.paused,
     pause,
     resume,
     togglePause,

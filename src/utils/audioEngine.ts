@@ -45,6 +45,17 @@ class AudioEngine {
   // Callback for cursor sync during playback
   public onPlaybackNote: ((measureIndex: number) => void) | null = null;
   public onPlaybackEnd: (() => void) | null = null;
+  // Callback for playback state changes (start, stop, pause, resume)
+  public onPlaybackStateChange:
+    | ((state: { isPlaying: boolean; isPaused: boolean }) => void)
+    | null = null;
+
+  private notifyStateChange(): void {
+    this.onPlaybackStateChange?.({
+      isPlaying: this.isPlaying,
+      isPaused: this.isPaused,
+    });
+  }
 
   constructor() {
     // Create compressor to tame bass chord dynamics
@@ -371,6 +382,7 @@ class AudioEngine {
         (lastNote.startTime + lastNote.duration) * wholeNoteDuration + 0.5;
     }
     Tone.getTransport().start();
+    this.notifyStateChange();
   }
   // Helper: Convert MIDI to note name (move from top-level function to method)
   private midiToNoteName(midi: number): string {
@@ -397,18 +409,21 @@ class AudioEngine {
     this.isPlaying = false;
     this.isPaused = false;
     this._totalDuration = 0;
+    this.notifyStateChange();
   }
 
   pausePlayback(): void {
     if (!this.isPlaying || this.isPaused) return;
     Tone.getTransport().pause();
     this.isPaused = true;
+    this.notifyStateChange();
   }
 
   resumePlayback(): void {
     if (!this.isPlaying || !this.isPaused) return;
     Tone.getTransport().start();
     this.isPaused = false;
+    this.notifyStateChange();
   }
 
   get playing(): boolean {
