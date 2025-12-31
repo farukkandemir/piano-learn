@@ -70,7 +70,7 @@ export default function Metronome() {
         <Button
           variant={isPlaying ? "default" : "outline"}
           size="icon-sm"
-          className="relative"
+          className="relative cursor-pointer"
           title="Metronome"
         >
           {/* Beat indicator dot */}

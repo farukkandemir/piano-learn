@@ -1,4 +1,5 @@
 import type { MeasureBounds } from "@/hooks/use-measure-bounds";
+import { cn } from "@/lib/utils";
 import type { RefObject } from "react";
 
 interface MeasureOverlayProps {
@@ -7,6 +8,7 @@ interface MeasureOverlayProps {
   overlayRef: RefObject<HTMLDivElement | null>;
   onMeasureClick?: (measureNumber: number) => void;
   pendingStart?: number | null;
+  playingMeasure?: number | null;
 }
 
 export function MeasureOverlay({
@@ -15,12 +17,19 @@ export function MeasureOverlay({
   overlayRef,
   onMeasureClick,
   pendingStart,
+  playingMeasure,
 }: MeasureOverlayProps) {
+  // Calculate height needed to cover all measures (for click detection after scroll)
+  const overlayHeight =
+    allMeasureBounds.length > 0
+      ? Math.max(...allMeasureBounds.map((b) => b.y + b.height)) + 20
+      : "100%";
+
   return (
     <div
       ref={overlayRef}
-      className="absolute inset-0 pointer-events-none overflow-hidden"
-      style={{ willChange: "transform" }}
+      className="absolute left-0 top-0 right-0 pointer-events-none"
+      style={{ height: overlayHeight }}
     >
       {allMeasureBounds.map((bounds) => {
         const isInRange =
@@ -28,28 +37,37 @@ export function MeasureOverlay({
           bounds.measureNumber >= loopRange.start &&
           bounds.measureNumber <= loopRange.end;
         const isPendingStart = pendingStart === bounds.measureNumber;
+        const isPlaying = playingMeasure === bounds.measureNumber;
 
         return (
           <div
             key={bounds.measureNumber}
-            className="absolute cursor-pointer pointer-events-auto transition-colors"
+            className={cn(
+              "absolute cursor-pointer pointer-events-auto transition-colors",
+              playingMeasure !== null && "pointer-events-none" // Disable during playback
+            )}
             style={{
               left: bounds.x,
               top: bounds.y,
               width: bounds.width,
               height: bounds.height,
-              backgroundColor: isPendingStart
-                ? "rgba(251, 191, 36, 0.2)"
-                : isInRange
-                  ? "rgba(59, 130, 246, 0.1)"
-                  : "transparent",
-              border: isPendingStart
-                ? "2px solid rgba(251, 191, 36, 0.5)"
-                : isInRange
-                  ? "2px solid rgba(59, 130, 246, 0.3)"
-                  : "2px solid transparent",
+              backgroundColor: isPlaying
+                ? "rgba(16, 185, 129, 0.2)"
+                : isPendingStart
+                  ? "rgba(251, 191, 36, 0.2)"
+                  : isInRange
+                    ? "rgba(59, 130, 246, 0.1)"
+                    : "transparent",
+              border: isPlaying
+                ? "2px solid rgba(16, 185, 129, 0.6)" // Green/teal border
+                : isPendingStart
+                  ? "2px solid rgba(251, 191, 36, 0.5)"
+                  : isInRange
+                    ? "2px solid rgba(59, 130, 246, 0.3)"
+                    : "2px solid transparent",
               borderRadius: "4px",
               zIndex: 5,
+              transition: "all 0.15s ease-in-out",
             }}
             onClick={() => onMeasureClick?.(bounds.measureNumber)}
             onMouseEnter={(e) => {
