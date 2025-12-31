@@ -334,7 +334,7 @@ class AudioEngine {
         // Sync cursor on main thread using Draw
         if (this.onPlaybackNote && noteGroup.length > 0) {
           Draw.schedule(() => {
-            this.onPlaybackNote?.(noteGroup[0].measureIndex);
+            this.onPlaybackNote?.(noteGroup[0].measureIndex + 1);
           }, time);
         }
       }, startTimeSeconds);
