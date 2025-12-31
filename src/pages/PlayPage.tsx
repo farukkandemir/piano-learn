@@ -205,10 +205,11 @@ export default function PlayPage() {
     };
   }, [checkAndAdvance]);
 
-  // Stop all notes on unmount
+  // Stop all notes and playback on unmount
   useEffect(() => {
     return () => {
-      audioEngine.stopAllNotes(); // ✅ Only on component unmount
+      audioEngine.stopPlayback();
+      audioEngine.stopAllNotes();
     };
   }, []);
 
