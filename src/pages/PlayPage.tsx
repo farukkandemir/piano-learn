@@ -17,7 +17,6 @@ import { cn } from "@/lib/utils";
 import Metronome from "@/components/metronome";
 import { PlaybackTimeline } from "@/components/PlaybackTimeline";
 import { usePlaybackProgress } from "@/hooks/use-playback-progress";
-import { Play, Pause } from "lucide-react";
 import { KEYBOARD_MAP } from "@/lib/contants";
 
 type HandMode = "left" | "right" | "both";
@@ -44,9 +43,6 @@ export default function PlayPage() {
   const [pressedKeys, setPressedKeys] = useState<Set<number>>(new Set());
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [playingMeasure, setPlayingMeasure] = useState<number | null>(null);
-
-  // Use the playback progress hook for unified state
-  const { isPlaying: isListening } = usePlaybackProgress();
 
   const [isMuted, setIsMuted] = useState(false);
   const hasAdvancedRef = useRef(false);
@@ -360,44 +356,6 @@ export default function PlayPage() {
 
             <Metronome />
 
-            {/* Listen Mode Button - with transitions and visual feedback */}
-            <Button
-              variant="default"
-              size="icon"
-              onClick={handleListen}
-              disabled={!audioLoaded}
-              title={isListening ? "Stop" : "Listen"}
-              className={cn(
-                "h-9 w-9 transition-all duration-200 cursor-pointer",
-                isListening &&
-                  "bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/30",
-                !audioLoaded && "opacity-50 cursor-wait"
-              )}
-            >
-              {!audioLoaded ? (
-                <Spinner className="h-4 w-4" />
-              ) : (
-                <div className="relative">
-                  <Play
-                    className={cn(
-                      "h-4 w-4 absolute transition-all duration-200",
-                      isListening
-                        ? "opacity-0 scale-75 rotate-90"
-                        : "opacity-100 scale-100 rotate-0"
-                    )}
-                  />
-                  <Pause
-                    className={cn(
-                      "h-4 w-4 transition-all duration-200",
-                      isListening
-                        ? "opacity-100 scale-100 rotate-0"
-                        : "opacity-0 scale-75 -rotate-90"
-                    )}
-                  />
-                </div>
-              )}
-            </Button>
-
             <Button
               onClick={handleToggleMute}
               variant="outline"
@@ -422,7 +380,7 @@ export default function PlayPage() {
       </header>
 
       {/* Playback Timeline */}
-      <PlaybackTimeline />
+      <PlaybackTimeline onPlay={handleListen} />
 
       {/* Sheet Music Area */}
       <div className="p-2 md:p-4 overflow-hidden min-h-0">

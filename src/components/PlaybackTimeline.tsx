@@ -6,6 +6,7 @@ import { audioEngine } from "@/utils/audioEngine";
 
 interface PlaybackTimelineProps {
   className?: string;
+  onPlay?: () => void;
 }
 
 // Format seconds to mm:ss
@@ -15,7 +16,7 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-export function PlaybackTimeline({ className }: PlaybackTimelineProps) {
+export function PlaybackTimeline({ className, onPlay }: PlaybackTimelineProps) {
   const {
     currentTime,
     totalDuration,
@@ -26,6 +27,16 @@ export function PlaybackTimeline({ className }: PlaybackTimelineProps) {
   } = usePlaybackProgress();
 
   const isActive = isPlaying;
+
+  const handlePlayPause = () => {
+    if (!isActive && onPlay) {
+      // Start playback
+      onPlay();
+    } else {
+      // Toggle pause/resume
+      togglePause();
+    }
+  };
 
   const handleStop = () => {
     audioEngine.stopPlayback();
@@ -41,23 +52,23 @@ export function PlaybackTimeline({ className }: PlaybackTimelineProps) {
     >
       {/* Controls */}
       <div className="flex items-center gap-1">
-        {/* Pause/Play Toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={togglePause}
-          disabled={!isActive}
+        {/* Play/Pause Toggle */}
+        <button
+          onClick={handlePlayPause}
           className={cn(
-            "h-7 w-7 transition-opacity",
-            !isActive && "opacity-40"
+            "h-7 w-7 rounded-md flex items-center justify-center cursor-pointer",
+            !isActive
+              ? "bg-primary text-primary-foreground"
+              : "bg-emerald-500 text-white"
           )}
+          title={isActive ? (isPaused ? "Resume" : "Pause") : "Play"}
         >
-          {isPaused ? (
+          {isPaused || !isActive ? (
             <Play className="h-3.5 w-3.5" />
           ) : (
             <Pause className="h-3.5 w-3.5" />
           )}
-        </Button>
+        </button>
 
         {/* Stop */}
         <Button
@@ -90,7 +101,7 @@ export function PlaybackTimeline({ className }: PlaybackTimelineProps) {
         <div
           className={cn(
             "h-full rounded-full",
-            isActive ? "bg-red-500" : "bg-muted-foreground/20"
+            isActive ? "bg-emerald-500" : "bg-muted-foreground/20"
           )}
           style={{ width: `${progress}%` }}
         />
