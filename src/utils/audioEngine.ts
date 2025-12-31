@@ -40,6 +40,8 @@ class AudioEngine {
 
   private playbackScheduleIds: number[] = [];
   private isPlaying = false;
+  private isPaused = false;
+  private _totalDuration = 0; // Total duration in seconds
   // Callback for cursor sync during playback
   public onPlaybackNote: ((measureIndex: number) => void) | null = null;
   public onPlaybackEnd: (() => void) | null = null;
@@ -363,6 +365,11 @@ class AudioEngine {
 
     // Start transport
     this.isPlaying = true;
+    // Store total duration for timeline
+    if (lastNote) {
+      this._totalDuration =
+        (lastNote.startTime + lastNote.duration) * wholeNoteDuration + 0.5;
+    }
     Tone.getTransport().start();
   }
   // Helper: Convert MIDI to note name (move from top-level function to method)
@@ -388,10 +395,36 @@ class AudioEngine {
       this.instrument.releaseAll(Tone.now());
     }
     this.isPlaying = false;
+    this.isPaused = false;
+    this._totalDuration = 0;
+  }
+
+  pausePlayback(): void {
+    if (!this.isPlaying || this.isPaused) return;
+    Tone.getTransport().pause();
+    this.isPaused = true;
+  }
+
+  resumePlayback(): void {
+    if (!this.isPlaying || !this.isPaused) return;
+    Tone.getTransport().start();
+    this.isPaused = false;
   }
 
   get playing(): boolean {
     return this.isPlaying;
+  }
+
+  get paused(): boolean {
+    return this.isPaused;
+  }
+
+  get currentTime(): number {
+    return Tone.getTransport().seconds;
+  }
+
+  get totalDuration(): number {
+    return this._totalDuration;
   }
 }
 
