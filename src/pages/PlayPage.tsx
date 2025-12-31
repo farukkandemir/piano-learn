@@ -84,11 +84,22 @@ export default function PlayPage() {
     const initAudio = async () => {
       try {
         await audioEngine.ensureStarted();
-        setAudioLoaded(true);
+        // Check if samples are already loaded
+        if (audioEngine.loaded) {
+          setAudioLoaded(true);
+        }
       } catch (err) {
         console.error("Failed to init audio:", err);
       }
     };
+
+    // Poll for sample loading (Sampler loads async)
+    const checkLoaded = setInterval(() => {
+      if (audioEngine.loaded && !audioLoaded) {
+        setAudioLoaded(true);
+        clearInterval(checkLoaded);
+      }
+    }, 100);
 
     // Try to init on mount, but it may need user interaction
     initAudio();
@@ -103,6 +114,7 @@ export default function PlayPage() {
 
     return () => {
       document.removeEventListener("click", handleClick);
+      clearInterval(checkLoaded);
     };
   }, [audioLoaded]);
 
@@ -383,7 +395,7 @@ export default function PlayPage() {
       </header>
 
       {/* Playback Timeline */}
-      <PlaybackTimeline onPlay={handleListen} />
+      <PlaybackTimeline onPlay={handleListen} audioLoaded={audioLoaded} />
 
       {/* Sheet Music Area */}
       <div className="p-2 md:p-4 overflow-hidden min-h-0">

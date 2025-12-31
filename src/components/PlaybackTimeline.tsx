@@ -1,12 +1,13 @@
 import { usePlaybackProgress } from "@/hooks/use-playback-progress";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Square } from "lucide-react";
+import { Play, Pause, Square, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { audioEngine } from "@/utils/audioEngine";
 
 interface PlaybackTimelineProps {
   className?: string;
   onPlay?: () => void;
+  audioLoaded?: boolean;
 }
 
 // Format seconds to mm:ss
@@ -16,7 +17,11 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-export function PlaybackTimeline({ className, onPlay }: PlaybackTimelineProps) {
+export function PlaybackTimeline({
+  className,
+  onPlay,
+  audioLoaded = true,
+}: PlaybackTimelineProps) {
   const {
     currentTime,
     totalDuration,
@@ -55,15 +60,28 @@ export function PlaybackTimeline({ className, onPlay }: PlaybackTimelineProps) {
         {/* Play/Pause Toggle */}
         <button
           onClick={handlePlayPause}
+          disabled={!audioLoaded && !isActive}
           className={cn(
-            "h-7 w-7 rounded-md flex items-center justify-center cursor-pointer",
-            !isActive
-              ? "bg-primary text-primary-foreground"
-              : "bg-emerald-500 text-white"
+            "h-7 w-7 rounded-md flex items-center justify-center",
+            !audioLoaded && !isActive
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : !isActive
+                ? "bg-primary text-primary-foreground cursor-pointer"
+                : "bg-emerald-500 text-white cursor-pointer"
           )}
-          title={isActive ? (isPaused ? "Resume" : "Pause") : "Play"}
+          title={
+            !audioLoaded && !isActive
+              ? "Loading piano sounds..."
+              : isActive
+                ? isPaused
+                  ? "Resume"
+                  : "Pause"
+                : "Play"
+          }
         >
-          {isPaused || !isActive ? (
+          {!audioLoaded && !isActive ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : isPaused || !isActive ? (
             <Play className="h-3.5 w-3.5" />
           ) : (
             <Pause className="h-3.5 w-3.5" />
