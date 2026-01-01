@@ -341,40 +341,94 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
       return false;
     }, [highlightAndExtractNotes, isOutsideLoop, jumpToLoopStart]);
 
+    // Helper: Calculate total duration of a tied note chain
+    const getTiedNoteDuration = (note: any): number => {
+      // If not part of a tie, just return the note's own duration
+      if (!note.NoteTie) {
+        return note.Length?.RealValue ?? 0.25;
+      }
+
+      // Sum all notes in the tie chain
+      let totalDuration = 0;
+      for (const tiedNote of note.NoteTie.Notes) {
+        totalDuration += tiedNote.Length?.RealValue ?? 0;
+      }
+      return totalDuration || 0.25;
+    };
+
+    // Pre-scan the entire score to extract all notes with timing
     // Pre-scan the entire score to extract all notes with timing
     const getAllNotesWithTiming = useCallback((): ScheduledNote[] => {
       if (!osmdRef.current?.cursor) return [];
       const cursor = osmdRef.current.cursor;
       const notes: ScheduledNote[] = [];
+
       // Save current cursor position
       cursor.reset();
-      // Iterate through the entire piece
+
+      // If loop range is set, skip to loop start
+      if (loopRange) {
+        while (cursor.Iterator.CurrentMeasureIndex + 1 < loopRange.start) {
+          cursor.next();
+        }
+      }
+
+      // Get the start time offset (so loop starts at time 0)
+      const startTimeOffset = loopRange
+        ? (cursor.GNotesUnderCursor()[0]?.sourceNote?.getAbsoluteTimestamp()
+            ?.RealValue ?? 0)
+        : 0;
+
+      // Iterate through the piece (or loop range)
       while (!cursor.Iterator.EndReached) {
+        // Stop if we've passed the loop end
+        if (
+          loopRange &&
+          cursor.Iterator.CurrentMeasureIndex + 1 > loopRange.end
+        ) {
+          break;
+        }
+
         const gNotesUnderCursor = cursor.GNotesUnderCursor();
         const measureIndex = cursor.Iterator.CurrentMeasureIndex;
+
         gNotesUnderCursor.forEach((gNote) => {
           const sourceNote = gNote.sourceNote;
           if (!sourceNote || sourceNote.isRest()) return;
+
+          // Skip continuation notes of ties (only play the START of tied notes)
+          if (
+            sourceNote.NoteTie &&
+            sourceNote.NoteTie.StartNote !== sourceNote
+          ) {
+            return;
+          }
+
           // Determine hand based on staff
           const staffIndex =
             sourceNote.ParentStaffEntry?.ParentStaff?.idInMusicSheet ?? 0;
           const hand: "left" | "right" = staffIndex === 0 ? "right" : "left";
+
           // Get MIDI number
           const midiNumber = sourceNote.halfTone + 12;
-          // Get timing info (in "whole note" units)
-          // AbsoluteTimestamp is the start position in the piece
-          const startTime = sourceNote.getAbsoluteTimestamp()?.RealValue ?? 0;
-          const duration = sourceNote.Length?.RealValue ?? 0.25;
+
+          // Get timing info (offset so loop starts at 0)
+          const startTime =
+            (sourceNote.getAbsoluteTimestamp()?.RealValue ?? 0) -
+            startTimeOffset;
+          const duration = getTiedNoteDuration(sourceNote);
 
           notes.push({ midiNumber, hand, startTime, duration, measureIndex });
         });
+
         cursor.next();
       }
+
       // Restore cursor to beginning
       cursor.reset();
       highlightAndExtractNotes();
       return notes;
-    }, [highlightAndExtractNotes]);
+    }, [highlightAndExtractNotes, loopRange]);
 
     const getBPM = useCallback((): number => {
       if (!osmdRef.current?.Sheet) return 120; // Default fallback

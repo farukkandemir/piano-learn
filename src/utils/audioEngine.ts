@@ -40,9 +40,22 @@ class AudioEngine {
 
   private playbackScheduleIds: number[] = [];
   private isPlaying = false;
+  private isPaused = false;
+  private _totalDuration = 0; // Total duration in seconds
   // Callback for cursor sync during playback
   public onPlaybackNote: ((measureIndex: number) => void) | null = null;
   public onPlaybackEnd: (() => void) | null = null;
+  // Callback for playback state changes (start, stop, pause, resume)
+  public onPlaybackStateChange:
+    | ((state: { isPlaying: boolean; isPaused: boolean }) => void)
+    | null = null;
+
+  private notifyStateChange(): void {
+    this.onPlaybackStateChange?.({
+      isPlaying: this.isPlaying,
+      isPaused: this.isPaused,
+    });
+  }
 
   constructor() {
     // Create compressor to tame bass chord dynamics
@@ -286,6 +299,9 @@ class AudioEngine {
       return;
     }
 
+    // Restore volume (may have been muted by previous stop)
+    this.instrument.volume.value = -6;
+
     // Set tempo
     Tone.getTransport().bpm.value = bpm;
 
@@ -318,7 +334,7 @@ class AudioEngine {
         // Sync cursor on main thread using Draw
         if (this.onPlaybackNote && noteGroup.length > 0) {
           Draw.schedule(() => {
-            this.onPlaybackNote?.(noteGroup[0].measureIndex);
+            this.onPlaybackNote?.(noteGroup[0].measureIndex + 1);
           }, time);
         }
       }, startTimeSeconds);
@@ -363,7 +379,13 @@ class AudioEngine {
 
     // Start transport
     this.isPlaying = true;
+    // Store total duration for timeline
+    if (lastNote) {
+      this._totalDuration =
+        (lastNote.startTime + lastNote.duration) * wholeNoteDuration + 0.5;
+    }
     Tone.getTransport().start();
+    this.notifyStateChange();
   }
   // Helper: Convert MIDI to note name (move from top-level function to method)
   private midiToNoteName(midi: number): string {
@@ -373,25 +395,71 @@ class AudioEngine {
   }
 
   stopPlayback(): void {
-    // Cancel ALL scheduled events first
-    Tone.getTransport().cancel();
-    // Clear all scheduled notes
+    // 1. Mute immediately for instant silence (keeps muted until next playback)
+    if (this.instrument) {
+      this.instrument.volume.value = -Infinity;
+    }
+
+    // 2. Stop transport first (prevents more events from firing)
+    Tone.getTransport().stop();
+    Tone.getTransport().position = 0;
+
+    // 3. Cancel all scheduled events
+    Tone.getTransport().cancel(0);
     this.playbackScheduleIds.forEach((id) => {
       Tone.getTransport().clear(id);
     });
     this.playbackScheduleIds = [];
-    // Stop transport and reset
-    Tone.getTransport().stop();
-    Tone.getTransport().position = 0;
-    // Immediately release ALL playing notes (no decay)
+
+    // 4. Release all notes (muted, so no sound)
     if (this.instrument) {
-      this.instrument.releaseAll(Tone.now());
+      this.instrument.releaseAll();
     }
+
+    // 5. Reset state (volume restored in next schedulePlayback)
     this.isPlaying = false;
+    this.isPaused = false;
+    this._totalDuration = 0;
+    this.onPlaybackEnd?.();
+    this.notifyStateChange();
+  }
+
+  pausePlayback(): void {
+    if (!this.isPlaying || this.isPaused) return;
+    // Mute to stop any ringing notes
+    if (this.instrument) {
+      this.instrument.volume.value = -Infinity;
+    }
+    Tone.getTransport().pause();
+    this.isPaused = true;
+    this.notifyStateChange();
+  }
+
+  resumePlayback(): void {
+    if (!this.isPlaying || !this.isPaused) return;
+    // Restore volume before resuming
+    if (this.instrument) {
+      this.instrument.volume.value = -6;
+    }
+    Tone.getTransport().start();
+    this.isPaused = false;
+    this.notifyStateChange();
   }
 
   get playing(): boolean {
     return this.isPlaying;
+  }
+
+  get paused(): boolean {
+    return this.isPaused;
+  }
+
+  get currentTime(): number {
+    return Tone.getTransport().seconds;
+  }
+
+  get totalDuration(): number {
+    return this._totalDuration;
   }
 }
 
