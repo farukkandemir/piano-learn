@@ -420,6 +420,7 @@ class AudioEngine {
     this.isPlaying = false;
     this.isPaused = false;
     this._totalDuration = 0;
+    this.onPlaybackEnd?.();
     this.notifyStateChange();
   }
 
