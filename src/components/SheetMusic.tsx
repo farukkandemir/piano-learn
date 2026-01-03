@@ -207,6 +207,7 @@ const SheetMusic = forwardRef<SheetMusicHandle, SheetMusicProps>(
 
           osmdRef.current = osmd;
 
+          osmd.EngravingRules.RenderXMeasuresPerLineAkaSystem = 8;
           // Load MusicXML
           await osmd.load(xmlContent);
 
