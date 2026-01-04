@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import {
   Library,
   // Settings,
-  Home,
   LogOut,
   Sun,
   Moon,
@@ -36,7 +35,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
+
+  // Resolve system theme to actual dark/light
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const logoSrc = isDark
+    ? "/logo-svgs/logo-white.svg"
+    : "/logo-svgs/logo-dark.svg";
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,7 +57,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               to="/"
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 px-2"
             >
-              <Home className="h-4 w-4" />
+              <img src={logoSrc} alt="piano.learn logo" className="h-6 w-6" />
               <span>piano.learn</span>
             </Link>
 

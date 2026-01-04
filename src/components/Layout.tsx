@@ -4,6 +4,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { LogOut, Menu, Info, BookOpen, Map, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth";
+import { useTheme } from "@/components/theme-provider";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,6 +61,7 @@ const UserProfile = ({
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme } = useTheme();
 
   const { user, signOut } = useAuth();
 
@@ -69,14 +71,24 @@ export function Layout({ children }: LayoutProps) {
     { href: "/roadmap", label: "Roadmap", icon: Map },
   ];
 
+  // Resolve system theme to actual dark/light
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const logoSrc = isDark
+    ? "/logo-svgs/logo-white.svg"
+    : "/logo-svgs/logo-dark.svg";
+
   return (
     <div className="min-h-screen bg-background bg-dot-grid">
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <Link
             to="/"
-            className="text-lg font-bold hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-lg font-bold hover:opacity-80 transition-opacity"
           >
+            <img src={logoSrc} alt="piano.learn logo" className="h-7 w-7" />
             piano.learn
           </Link>
 
